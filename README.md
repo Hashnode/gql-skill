@@ -21,12 +21,17 @@ automatically when you ask it to work with the Hashnode gql API.
 skills/gql-api/
 ├── SKILL.md                    # endpoint, auth, Pro-gating rules, agent rules
 └── references/
+    ├── schema.graphql          # full introspection schema (SDL) — canonical type reference
     ├── queries.md              # all queries — args, returns, auth/Pro flags
     ├── mutations.md            # all mutations — inputs, payloads, auth/Pro flags
     ├── auth-and-roles.md       # PAT setup, public vs auth, roles, contributor flow
     ├── errors-and-limits.md    # error codes, page caps, depth, payload/image limits
     └── recipes.md              # publish a post, paginate, upload an image
 ```
+
+`schema.graphql` is the full SDL from `gql-beta` introspection (every type, field,
+argument, and input) and is the canonical reference for exact names. The curated
+Markdown files layer on the auth and Pro-gating behavior the schema can't express.
 
 ## Using the API
 
