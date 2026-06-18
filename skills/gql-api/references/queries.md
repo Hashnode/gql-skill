@@ -12,8 +12,8 @@ PAT required, **Pro** = the target publication must have an active Pro plan
 | `user` | `username: String!` | `User` | Public |
 | `tag` | `slug: String!` | `Tag` | Public |
 | `feed` | `first: Int!, after: String, filter: FeedFilter` | `FeedPostConnection!` | Public |
-| `draft` | `id: ObjectId!` | `Draft` | Auth |
-| `scheduledPost` | `id: ObjectId!` | `ScheduledPost` | Auth |
+| `draft` | `id: ObjectId!` | `Draft` | Auth + Pro |
+| `scheduledPost` | `id: ObjectId!` | `ScheduledPost` | Auth + Pro |
 | `checkCustomDomainAvailability` | `input: CheckCustomDomainAvailabilityInput!` | `CheckCustomDomainAvailabilityResult!` | Public |
 | `checkSubdomainAvailability` | `subdomain: String!` | `CheckSubdomainAvailabilityResult!` | Public |
 | `searchPostsOfPublication` | `first: Int!, after: String, sortBy: PostSortBy, filter: SearchPostsOfPublicationFilter!` | `SearchPostConnection!` | Pro |
@@ -97,14 +97,21 @@ query ($first: Int!, $after: String, $filter: FeedFilter) {
 }
 ```
 
-## draft (Auth)
+## draft (Auth + Pro)
 
-A single draft by id. Requires auth. For privacy, a draft you cannot access
+A single draft by id. Requires auth, that you are authorized for the draft (its
+author, or an admin/author member or owner of its publication), and that the
+draft's owning publication is on Pro. For privacy, a draft you cannot access
 returns `NOT_FOUND` (not `FORBIDDEN`) — do not treat that as "retry with auth."
+An authorized caller on a non-Pro publication gets `FORBIDDEN` with the Pro-plan
+message.
 
-## scheduledPost (Auth)
+## scheduledPost (Auth + Pro)
 
-A scheduled post by id, including its underlying `draft`. Requires auth.
+A scheduled post by id, including its underlying `draft`. Requires auth, that you
+own the scheduled post (author or scheduler), and that the scheduled post's owning
+publication is on Pro. A non-Pro publication returns `FORBIDDEN` with the Pro-plan
+message.
 
 ## checkCustomDomainAvailability / checkSubdomainAvailability
 

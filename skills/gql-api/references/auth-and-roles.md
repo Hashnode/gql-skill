@@ -20,14 +20,16 @@ is treated as unauthenticated.
 | `post`, `feed`, `user`, `tag`, `publication`, `documentationProject` | No |
 | `checkCustomDomainAvailability`, `checkSubdomainAvailability` | No |
 | `searchPostsOfPublication`, `topCommenters` | No token, but Pro publication required |
-| `me`, `draft`, `scheduledPost` | Yes |
+| `me` | Yes |
+| `draft`, `scheduledPost` | Yes, and the owning publication must be Pro |
 | All mutations | Yes |
 
 A missing or invalid token on an authenticated operation returns `UNAUTHENTICATED`.
 
-> Note: `publication`, `searchPostsOfPublication`, and `topCommenters` don't
-> require a user token, but the **publication** they target must be on the Pro
-> plan or they return `FORBIDDEN`. See the Pro gating section in SKILL.md.
+> Note: `publication`, `draft`, `scheduledPost`, `searchPostsOfPublication`, and
+> `topCommenters` are all publication-scoped reads, so the publication they target
+> must be on the Pro plan or they return `FORBIDDEN`. See the Pro gating section in
+> SKILL.md.
 
 ## Roles (team publications)
 

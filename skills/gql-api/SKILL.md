@@ -69,8 +69,9 @@ Pro-gated operations:
 - **All write mutations:** `publishPost`, `updatePost`, `createDraft`,
   `updateDraft`, `publishDraft`, `submitDraftForReview`, `rejectDraftSubmission`,
   `deleteDraft`.
-- **Publication-scoped reads:** `publication`, `searchPostsOfPublication`,
-  `topCommenters`.
+- **Publication-scoped reads:** `publication`, `draft`, `scheduledPost`,
+  `searchPostsOfPublication`, `topCommenters`. (`draft` and `scheduledPost` also
+  require a PAT and authorization; the owning publication must be Pro.)
 
 Public feed/post/user/tag reads are **not** Pro-gated.
 
