@@ -1,0 +1,1176 @@
+scalar DateTime
+
+scalar ObjectId
+
+"""Arbitrary JSON object"""
+scalar JSONObject
+
+type Query {
+  """Returns the current authenticated user. Requires authentication."""
+  me: MyUser
+
+  """Returns a post by ID"""
+  post(id: ID!): Post
+
+  """Returns a publication by ID or host"""
+  publication(id: ObjectId, host: String): Publication
+
+  """Returns a user by username"""
+  user(username: String!): User
+
+  """Returns a tag by slug"""
+  tag(slug: String!): Tag
+
+  """Returns a paginated feed of posts"""
+  feed(first: Int!, after: String, filter: FeedFilter): FeedPostConnection!
+
+  """Returns a draft by ID (requires authentication)"""
+  draft(id: ObjectId!): Draft
+
+  """Returns a scheduled post (requires authentication)"""
+  scheduledPost(id: ObjectId!): ScheduledPost
+
+  """Check if a custom domain is available"""
+  checkCustomDomainAvailability(input: CheckCustomDomainAvailabilityInput!): CheckCustomDomainAvailabilityResult!
+
+  """Check if a subdomain is available"""
+  checkSubdomainAvailability(subdomain: String!): CheckSubdomainAvailabilityResult!
+
+  """Search posts within a publication"""
+  searchPostsOfPublication(first: Int!, after: String, sortBy: PostSortBy, filter: SearchPostsOfPublicationFilter!): SearchPostConnection!
+
+  """Get top commenters"""
+  topCommenters(publicationId: ObjectId!, limit: Int): [User!]!
+
+  """Get documentation project by ID or host"""
+  documentationProject(id: ID, host: String): DocumentationProject
+}
+
+type User {
+  id: ID!
+  username: String!
+  name: String!
+  bio: Content
+  profilePicture: String
+  coverImage: String
+  tagline: String
+  location: String
+  availableFor: String
+  deactivated: Boolean
+  dateJoined: DateTime
+  followersCount: Int!
+  followingsCount: Int!
+  posts(first: Int!, after: String): PostConnection!
+  publications(first: Int!, after: String): PublicationConnection!
+  followers(first: Int!, after: String): UserConnection!
+  follows(first: Int!, after: String): UserConnection!
+  socialMediaLinks: SocialMediaLinks
+  badges: [Badge!]!
+}
+
+type MyUser {
+  id: ID!
+  username: String!
+  name: String!
+  email: String!
+  bio: Content
+  profilePicture: String
+  coverImage: String
+  tagline: String
+  location: String
+  availableFor: String
+  dateJoined: DateTime
+  publications(first: Int!, after: String): PublicationConnection!
+  followers(first: Int!, after: String): UserConnection!
+  follows(first: Int!, after: String): UserConnection!
+  socialMediaLinks: SocialMediaLinks
+  badges: [Badge!]!
+}
+
+type SocialMediaLinks {
+  twitter: String
+  github: String
+  linkedin: String
+  website: String
+  facebook: String
+  instagram: String
+  stackoverflow: String
+  youtube: String
+}
+
+type Badge {
+  id: ID!
+  name: String!
+  description: String
+  image: String!
+}
+
+type PublicationFeatures {
+  proTeam: ProTeamFeature
+  newsletter: NewsletterFeature
+  viewCount: ViewCountFeature
+  readTime: ReadTimeFeature
+  textSelectionSharer: TextSelectionSharerFeature
+  gptBotCrawling: GPTBotCrawlingFeature
+  headlessCMS: HeadlessCMSFeature
+}
+
+type ProTeamFeature {
+  isEnabled: Boolean!
+}
+
+type NewsletterFeature {
+  isEnabled: Boolean!
+}
+
+type ViewCountFeature {
+  isEnabled: Boolean!
+}
+
+type ReadTimeFeature {
+  isEnabled: Boolean!
+}
+
+type TextSelectionSharerFeature {
+  isEnabled: Boolean!
+}
+
+type GPTBotCrawlingFeature {
+  isEnabled: Boolean!
+}
+
+type HeadlessCMSFeature {
+  isEnabled: Boolean!
+}
+
+type DomainInfo {
+  hashnodeSubdomain: String
+  domain: Domain
+  wwwPrefixedDomain: Domain
+}
+
+type Domain {
+  host: String!
+  ready: Boolean!
+}
+
+type RedirectionRule {
+  source: String!
+  destination: String!
+  type: Int!
+}
+
+type CustomRule {
+  type: Int!
+  path: String!
+  destination: String!
+}
+
+type ImprintV2 {
+  html: String
+}
+
+type PublicMembers {
+  totalDocuments: Int!
+}
+
+type Publication {
+  id: ID!
+  title: String!
+  displayTitle: String
+  url: String
+  canonicalURL: String
+  favicon: String
+  about: Content
+  descriptionSEO: String
+  author: User!
+  post(slug: String!): Post
+  redirectedPost(slug: String!): RedirectedPost
+  posts(first: Int!, after: String, filter: PublicationPostConnectionFilter): PostConnection!
+  postsCount(first: Int!): PostConnection!
+  series(slug: String!): Series
+  seriesList(first: Int!, after: String): SeriesConnection!
+  staticPage(slug: String!): StaticPage
+  staticPages(first: Int!, after: String): StaticPageConnection!
+  members(first: Int!, after: String): PublicationMemberConnection!
+  publicMembers(page: Int!, pageSize: Int!): PublicMembers!
+  isGitHubBackupEnabled: Boolean!
+  isGithubAsSourceConnected: Boolean!
+
+  """
+  Details of publication invites. Returns null if publication is not a team publication.
+  """
+  invites: PublicationInvite
+  drafts(first: Int!, after: String): DraftConnection!
+  allDrafts(first: Int!, after: String): DraftConnection!
+  scheduledDrafts(first: Int!, after: String): DraftConnection!
+  submittedDrafts(first: Int!, after: String): DraftConnection!
+  allScheduledDrafts(first: Int!, after: String): DraftConnection!
+  preferences: PublicationPreferences!
+  integrations: PublicationIntegrations
+  links: PublicationLinks
+  isTeam: Boolean!
+  followersCount: Int
+  pinnedPost: Post
+  hasBadges: Boolean
+  urlPattern: String
+  metaTags: String
+  ogMetaData: OpenGraphMetaData
+  features: PublicationFeatures!
+  domainInfo: DomainInfo!
+  isHeadless: Boolean!
+  headerColor: String
+  redirectionRules: [RedirectionRule!]!
+  customRules: [CustomRule!]!
+  imprintV2: ImprintV2
+  totalRecommendedPublications: Int!
+  recommendedPublications: [RecommendedPublicationEdge!]!
+  allowContributorEdits: Boolean!
+
+  """
+  Active custom widgets for this publication. Pinned widgets render on
+  every article; others are embedded inline via %%[widgetId] tokens.
+  """
+  widgets: [Widget!]!
+}
+
+"""
+A custom HTML widget an author can pin to all articles or embed inline.
+"""
+type Widget {
+  id: ID!
+
+  """The author-defined slug used in %%[widgetId] embed tokens."""
+  widgetId: String!
+  content: String!
+  isPinned: Boolean!
+  pinLocation: WidgetPinLocation
+}
+
+enum WidgetPinLocation {
+  top
+  bottom
+}
+
+type RecommendedPublicationEdge {
+  node: Publication!
+}
+
+type RedirectedPost {
+  id: ID!
+  slug: String!
+}
+
+type PublicationPreferences {
+  logo: String
+  darkMode: DarkModePreferences
+  navbarItems: [PublicationNavbarItem!]!
+  enabledPages: EnabledPages!
+  layout: String
+  disableFooterBranding: Boolean
+  isSubscriptionModalDisabled: Boolean
+}
+
+type DarkModePreferences {
+  enabled: Boolean!
+  logo: String
+}
+
+type PublicationNavbarItem {
+  id: ID!
+  type: String!
+  label: String!
+  url: String
+  series: Series
+  page: StaticPage
+}
+
+type EnabledPages {
+  badges: Boolean!
+  newsletter: Boolean!
+  members: Boolean!
+}
+
+type PublicationIntegrations {
+  gaTrackingID: String
+  fbPixelID: String
+  hotjarSiteID: String
+  matomoURL: String
+  matomoSiteID: String
+  fathomSiteID: String
+  fathomCustomDomainEnabled: Boolean
+  fathomCustomDomain: String
+  plausibleAnalyticsEnabled: Boolean
+  gTagManagerID: String
+  wmPaymentPointer: String
+  koalaPublicKey: String
+  msClarityID: String
+}
+
+type PublicationLinks {
+  twitter: String
+  github: String
+  linkedin: String
+  hashnode: String
+  website: String
+  instagram: String
+  youtube: String
+  dailydev: String
+  mastodon: String
+  facebook: String
+  bluesky: String
+}
+
+type PublicationMember {
+  id: ID!
+  user: User!
+  role: String!
+}
+
+enum UserPublicationRole {
+  """Contributors can join the publication and contribute an article."""
+  CONTRIBUTOR
+
+  """
+  Editors can customize the blog and approve/reject posts; they can also manage members.
+  """
+  EDITOR
+
+  """The owner is the creator of the publication and can do all things."""
+  OWNER
+}
+
+type OffsetPageInfo {
+  """Indicates if there are more pages."""
+  hasNextPage: Boolean
+
+  """Indicates if there are previous pages."""
+  hasPreviousPage: Boolean
+
+  """The page after the current page."""
+  nextPage: Int
+
+  """The page before the current page."""
+  previousPage: Int
+}
+
+"""Contains the publication invite information."""
+type PublicationInvite {
+  pendingInvites(pageSize: Int!, page: Int!): PendingInviteConnection!
+  roleBasedInvites(pageSize: Int!, page: Int!): RoleBasedInviteConnection!
+
+  """Signifies if invite links in role-based invites are active."""
+  areRoleBasedInviteLinksActive: Boolean!
+}
+
+type PendingInviteConnection {
+  nodes: [PendingInvite!]!
+  pageInfo: OffsetPageInfo!
+  totalDocuments: Int!
+}
+
+type RoleBasedInviteConnection {
+  nodes: [RoleBasedInvite!]!
+  pageInfo: OffsetPageInfo!
+  totalDocuments: Int!
+}
+
+"""Contains the pending invite information."""
+type PendingInvite {
+  id: ID!
+
+  """The email of the user that was invited."""
+  email: String
+
+  """
+  Invited Hashnode user, returns null if the user is not a Hashnode user.
+  """
+  user: User
+
+  """The role assigned to the user in the publication."""
+  role: UserPublicationRole!
+}
+
+type RoleBasedInvite {
+  id: ID!
+  role: UserPublicationRole!
+  isUnlimitedCapacity: Boolean
+  usedCapacity: Int
+  capacity: Int
+  inviteLink: String
+  createdAt: DateTime
+  expiryDate: DateTime
+}
+
+type Post {
+  id: ID!
+  cuid: String
+  title: String!
+  subtitle: String
+  slug: String!
+  url: String!
+  content: Content!
+  brief: String!
+  coverImage: CoverImage
+  author: User!
+  coAuthors: [User!]
+  publication: Publication
+  tags: [Tag!]
+  reactionCount: Int!
+  responseCount: Int!
+  replyCount: Int!
+  readTimeInMinutes: Int!
+  views: Int
+  featured: Boolean
+  publishedAt: DateTime!
+  updatedAt: DateTime
+  canonicalUrl: String
+  hasLatexInPost: Boolean
+  comments(first: Int!, after: String): CommentConnection!
+  likedBy(first: Int!, after: String): UserConnection!
+  series: Series
+  seo: SEO
+  ogMetaData: OpenGraphMetaData
+  features: PostFeatures!
+  preferences: PostPreferences!
+}
+
+type Content {
+  markdown: String!
+  html: String!
+  text: String!
+}
+
+type CoverImage {
+  url: String
+  attribution: String
+  photographer: String
+  isPortrait: Boolean
+  isAttributionHidden: Boolean
+}
+
+type SEO {
+  title: String
+  description: String
+}
+
+type OpenGraphMetaData {
+  image: String
+}
+
+type PostFeatures {
+  tableOfContents: TableOfContents
+}
+
+type TableOfContents {
+  isEnabled: Boolean!
+  items: [TableOfContentsItem!]!
+}
+
+type TableOfContentsItem {
+  id: ID!
+  level: Int!
+  slug: String!
+  title: String!
+  parentId: ID
+}
+
+type PostPreferences {
+  pinnedToBlog: Boolean!
+  disableComments: Boolean!
+  stickCoverToBottom: Boolean!
+  isDelisted: Boolean!
+}
+
+type Draft {
+  id: ID!
+  title: String
+  subtitle: String
+  slug: String
+  content: Content
+  author: User!
+  coverImage: CoverImage
+  tags: [Tag!]
+  publishAs: User
+  settings: DraftSettings
+  updatedAt: DateTime!
+  scheduledDate: DateTime
+
+  """The publication the draft belongs to."""
+  publication: Publication
+
+  """The series the draft will belong to once published."""
+  series: Series
+
+  """Co-authors of the draft. Set via createDraft/updateDraft input."""
+  coAuthors: [User!]
+
+  """
+  Canonical URL for republished content, if the draft was imported from
+  an external source.
+  """
+  canonicalUrl: String
+
+  """SEO metadata for the resulting post."""
+  seo: SEO
+
+  """Open Graph metadata for the resulting post."""
+  ogMetaData: OpenGraphMetaData
+
+  """Draft feature flags (e.g. table of contents preference)."""
+  features: PostFeatures
+
+  """Whether the draft has been submitted for review on a team publication."""
+  isSubmittedForReview: Boolean
+
+  """Estimated read time of the draft's content in minutes."""
+  readTimeInMinutes: Int
+}
+
+type DraftSettings {
+  """
+  Deprecated. Use `Draft.features.tableOfContents.isEnabled` instead.
+  Kept for backward compatibility with existing API consumers.
+  """
+  enableTableOfContents: Boolean! @deprecated(reason: "Use Draft.features.tableOfContents.isEnabled instead")
+  disableComments: Boolean!
+  stickCoverToBottom: Boolean!
+  isDelisted: Boolean!
+}
+
+type ScheduledPost {
+  id: ID!
+  title: String!
+  slug: String!
+  scheduledDate: DateTime!
+  author: User!
+  publication: Publication
+  draft: Draft!
+}
+
+type Series {
+  id: ID!
+  name: String!
+  slug: String!
+  cuid: String
+  description: Content
+  coverImage: String
+  author: User!
+  posts(first: Int!, after: String): PostConnection!
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  slug: String!
+  logo: String
+  tagline: String
+  info: String
+  followersCount: Int!
+  postsCount: Int!
+  posts(first: Int!, after: String): PostConnection!
+}
+
+type Comment {
+  id: ID!
+  content: Content!
+  author: User!
+  dateAdded: DateTime!
+  replies(first: Int!, after: String): CommentConnection!
+  totalReactions: Int!
+}
+
+type StaticPage {
+  id: ID!
+  title: String!
+  slug: String!
+  content: Content!
+  hidden: Boolean!
+  ogMetaData: OpenGraphMetaData
+  seo: SEO
+}
+
+type DocumentationProject {
+  id: ID!
+  title: String!
+  slug: String!
+  guides(first: Int!, after: String): GuideConnection!
+}
+
+type Guide {
+  id: ID!
+  title: String!
+  content: Content!
+}
+
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+  totalDocuments: Int
+}
+
+type PostEdge {
+  node: Post!
+  cursor: String!
+}
+
+type FeedPostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PublicationConnection {
+  edges: [PublicationEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PublicationEdge {
+  node: Publication!
+  cursor: String!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type SeriesConnection {
+  edges: [SeriesEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SeriesEdge {
+  node: Series!
+  cursor: String!
+}
+
+type StaticPageConnection {
+  edges: [StaticPageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type StaticPageEdge {
+  node: StaticPage!
+  cursor: String!
+}
+
+type PublicationMemberConnection {
+  edges: [PublicationMemberEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PublicationMemberEdge {
+  node: PublicationMember!
+  cursor: String!
+}
+
+type DraftConnection {
+  edges: [DraftEdge!]!
+  pageInfo: PageInfo!
+  totalDocuments: Int!
+}
+
+type DraftEdge {
+  node: Draft!
+  cursor: String!
+}
+
+type CommentConnection {
+  edges: [CommentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CommentEdge {
+  node: Comment!
+  cursor: String!
+}
+
+type SearchPostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GuideConnection {
+  edges: [GuideEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GuideEdge {
+  node: Guide!
+  cursor: String!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  totalDocuments: Int
+}
+
+input FeedFilter {
+  tags: [String!]
+  excludeTags: [String!]
+  publications: [ObjectId!]
+  excludePublications: [ObjectId!]
+}
+
+input PublicationPostConnectionFilter {
+  tagSlugs: [String!]
+}
+
+input SearchPostsOfPublicationFilter {
+  """The query to be searched in post."""
+  query: String
+
+  """The ID of the publication to search from."""
+  publicationId: ObjectId!
+
+  """Only return posts that are deleted. Returns active posts by default."""
+  deletedOnly: Boolean
+
+  """Author IDs to filter by (OR match)."""
+  authorIds: [ID!]
+
+  """Tag IDs to filter by (OR match)."""
+  tagIds: [ID!]
+
+  """Filter based on time range."""
+  time: TimeFilter
+
+  """Tag IDs all of which must be present on the post (AND match)."""
+  requiredTagsIds: [ID!]
+}
+
+enum PostSortBy {
+  DATE_PUBLISHED_ASC
+  DATE_PUBLISHED_DESC
+}
+
+input TimeFilter {
+  absolute: AbsoluteTimeRange
+  relative: RelativeTimeRange
+}
+
+input AbsoluteTimeRange {
+  from: DateTime
+  to: DateTime
+}
+
+input RelativeTimeRange {
+  relative: TimePeriod!
+  n: Int!
+}
+
+enum TimePeriod {
+  LAST_N_HOURS
+  LAST_N_DAYS
+  LAST_N_WEEKS
+  LAST_N_MONTHS
+  LAST_N_YEARS
+}
+
+input CheckCustomDomainAvailabilityInput {
+  domain: String!
+}
+
+type Mutation {
+  """Publish a new post to a publication. Requires authentication."""
+  publishPost(input: PublishPostInput!): PublishPostPayload!
+
+  """Update an existing post. Requires authentication."""
+  updatePost(input: UpdatePostInput!): UpdatePostPayload!
+
+  """
+  Create a new draft on a publication without publishing it. Requires authentication.
+  """
+  createDraft(input: CreateDraftInput!): CreateDraftPayload!
+
+  """Update an existing draft. Requires authentication."""
+  updateDraft(input: UpdateDraftInput!): UpdateDraftPayload!
+
+  """
+  Publish an existing draft as a post. The draft is soft-deleted once the
+  post is created. Requires authentication.
+  """
+  publishDraft(input: PublishDraftInput!): PublishDraftPayload!
+
+  """
+  Submit a draft on a team publication for editor review. Sets the
+  pendingPublicationApproval flag so editors see the draft in their queue.
+  Requires authentication.
+  """
+  submitDraftForReview(input: SubmitDraftForReviewInput!): SubmitDraftForReviewPayload!
+
+  """
+  Reject a draft that was previously submitted for review. Only publication
+  owners, admins, and authors can reject. Requires authentication.
+  """
+  rejectDraftSubmission(input: RejectDraftSubmissionInput!): RejectDraftSubmissionPayload!
+
+  """
+  Soft-delete a draft (sets it inactive). The draft's author can delete their
+  own draft; publication owners, admins, and authors can delete any draft in
+  the publication. Requires authentication.
+  """
+  deleteDraft(input: DeleteDraftInput!): DeleteDraftPayload!
+
+  """
+  Returns a presigned URL for uploading an image to Hashnode's CDN. Requires authentication.
+  """
+  createImageUploadURL(input: CreateImageUploadInput!): CreateImageUploadPayload!
+}
+
+input PublishPostInput {
+  """The publication ID to publish to."""
+  publicationId: ObjectId!
+
+  """Post title (required)."""
+  title: String!
+
+  """Post subtitle (optional)."""
+  subtitle: String
+
+  """Post content in markdown format (required)."""
+  contentMarkdown: String!
+
+  """Cover image URL."""
+  coverImage: String
+
+  """Custom slug. If not provided, generated from title."""
+  slug: String
+
+  """Tags as slugs (max 15). New tags will be created automatically."""
+  tags: [PublishPostTagInput!]
+
+  """Canonical URL for republished articles."""
+  originalArticleURL: String
+
+  """SEO title override."""
+  metaTitle: String
+
+  """SEO description override."""
+  metaDescription: String
+
+  """Custom OG image URL."""
+  ogImage: String
+
+  """Disable comments on this post."""
+  disableComments: Boolean
+
+  """Whether to delist the post from feeds (still accessible via URL)."""
+  isDelisted: Boolean
+
+  """Whether the resulting post should expose a table of contents."""
+  enableToc: Boolean
+
+  """
+  Publish on behalf of another user who is a member of the publication. Only for team publications.
+  """
+  publishAs: ObjectId
+
+  """IDs of co-authors (max 4). Must be members of the publication."""
+  coAuthors: [ObjectId!]
+
+  """Add the post to a series by ID."""
+  seriesId: ObjectId
+
+  """Backdate the post to a specific date."""
+  publishedAt: DateTime
+}
+
+input PublishPostTagInput {
+  """Tag slug (required). Used to find or create the tag."""
+  slug: String!
+
+  """Tag name. Defaults to slug if not provided."""
+  name: String
+}
+
+input UpdatePostInput {
+  """The post ID to update."""
+  id: ID!
+
+  """Updated title."""
+  title: String
+
+  """Updated subtitle."""
+  subtitle: String
+
+  """Updated content in markdown format."""
+  contentMarkdown: String
+
+  """Updated cover image URL."""
+  coverImage: String
+
+  """Updated slug."""
+  slug: String
+
+  """Updated tags as slugs (max 15)."""
+  tags: [PublishPostTagInput!]
+
+  """Updated canonical URL."""
+  originalArticleURL: String
+
+  """Updated SEO title."""
+  metaTitle: String
+
+  """Updated SEO description."""
+  metaDescription: String
+
+  """Updated OG image URL."""
+  ogImage: String
+
+  """Disable comments on this post."""
+  disableComments: Boolean
+
+  """Whether to delist the post from feeds."""
+  isDelisted: Boolean
+
+  """Whether the post should expose a table of contents."""
+  enableToc: Boolean
+
+  """Change the author. Must be a member of the publication."""
+  publishAs: ObjectId
+
+  """Update co-authors (max 4). Must be members of the publication."""
+  coAuthors: [ObjectId!]
+
+  """Add or change the series. Must belong to the publication."""
+  seriesId: ObjectId
+
+  """Backdate the post."""
+  publishedAt: DateTime
+}
+
+input CreateImageUploadInput {
+  """
+  The content type of the image. Must start with "image/". Example: "image/png".
+  """
+  contentType: String!
+}
+
+type CreateImageUploadPayload {
+  presignedPost: PresignedPost!
+}
+
+type PresignedPost {
+  """The URL to POST the image to."""
+  url: String!
+
+  """
+  The fields to include in the POST request body along with the image file.
+  """
+  fields: JSONObject!
+}
+
+input CreateDraftSettingsInput {
+  """Whether the resulting post should expose a table of contents."""
+  enableTableOfContent: Boolean
+
+  """
+  Whether to delist the resulting post from public feeds (still accessible via URL).
+  """
+  delist: Boolean
+
+  """Send a newsletter to subscribers when the resulting post is published."""
+  activateNewsletter: Boolean
+
+  """Whether the supplied slug overrides the slug generated from the title."""
+  slugOverridden: Boolean
+}
+
+input MetaTagsInput {
+  """SEO title override."""
+  title: String
+
+  """SEO description override."""
+  description: String
+
+  """Open Graph image URL."""
+  image: String
+}
+
+input CoverImageOptionsInput {
+  """Cover image URL."""
+  coverImageURL: String
+
+  """Attribution text for the cover image."""
+  coverImageAttribution: String
+
+  """Photographer credit for the cover image."""
+  coverImagePhotographer: String
+
+  """Whether the cover image attribution should be hidden."""
+  isCoverAttributionHidden: Boolean
+
+  """Whether the cover image is stuck to the bottom of the post header."""
+  stickCoverToBottom: Boolean
+}
+
+input CreateDraftInput {
+  """The publication ID the draft belongs to."""
+  publicationId: ObjectId!
+
+  """Draft title."""
+  title: String
+
+  """Draft subtitle."""
+  subtitle: String
+
+  """Draft content in markdown format."""
+  contentMarkdown: String
+
+  """Custom slug. If not provided, generated from title when publishing."""
+  slug: String
+
+  """Tags as slugs (max 15). New tags will be created automatically."""
+  tags: [PublishPostTagInput!]
+
+  """Add the draft to a series by ID."""
+  seriesId: ObjectId
+
+  """Disable comments on the resulting post."""
+  disableComments: Boolean
+
+  """Canonical URL for republished articles."""
+  originalArticleURL: String
+
+  """
+  Date the resulting post should be published with. Used for backdating
+  when publishDraft runs.
+  """
+  publishedAt: DateTime
+
+  """
+  Settings for the resulting draft like table of contents and newsletter activation.
+  """
+  settings: CreateDraftSettingsInput
+
+  """SEO metadata for the resulting post."""
+  metaTags: MetaTagsInput
+
+  """Cover image options."""
+  coverImageOptions: CoverImageOptionsInput
+
+  """
+  Author override. Must be a member of the publication. Only for team publications.
+  """
+  publishAs: ObjectId
+
+  """Co-authors (max 4). Must be members of the publication."""
+  coAuthors: [ObjectId!]
+}
+
+input UpdateDraftInput {
+  """The draft ID to update."""
+  draftId: ID!
+
+  """Updated title."""
+  title: String
+
+  """Updated subtitle."""
+  subtitle: String
+
+  """Updated content in markdown format."""
+  contentMarkdown: String
+
+  """Updated slug."""
+  slug: String
+
+  """Updated tags as slugs (max 15)."""
+  tags: [PublishPostTagInput!]
+
+  """Add or change the series. Must belong to the publication."""
+  seriesId: ObjectId
+
+  """Disable comments on the resulting post."""
+  disableComments: Boolean
+
+  """Updated canonical URL."""
+  originalArticleURL: String
+
+  """Date the resulting post should be published with."""
+  publishedAt: DateTime
+
+  """Settings for the resulting draft."""
+  settings: CreateDraftSettingsInput
+
+  """SEO metadata for the resulting post."""
+  metaTags: MetaTagsInput
+
+  """Cover image options."""
+  coverImageOptions: CoverImageOptionsInput
+
+  """Change the author. Must be a member of the publication."""
+  publishAs: ObjectId
+
+  """Update co-authors (max 4). Must be members of the publication."""
+  coAuthors: [ObjectId!]
+}
+
+type PublishPostPayload {
+  post: Post!
+}
+
+type UpdatePostPayload {
+  post: Post!
+}
+
+type CreateDraftPayload {
+  draft: Draft!
+}
+
+type UpdateDraftPayload {
+  draft: Draft!
+}
+
+input PublishDraftInput {
+  """The draft ID to publish."""
+  draftId: ID!
+}
+
+type PublishDraftPayload {
+  post: Post!
+}
+
+input SubmitDraftForReviewInput {
+  """The draft ID to submit for review."""
+  draftId: ID!
+}
+
+type SubmitDraftForReviewPayload {
+  draft: Draft!
+}
+
+input RejectDraftSubmissionInput {
+  """The draft ID whose submission should be rejected."""
+  draftId: ID!
+}
+
+type RejectDraftSubmissionPayload {
+  draft: Draft!
+}
+
+input DeleteDraftInput {
+  """The draft ID to delete."""
+  draftId: ID!
+}
+
+type DeleteDraftPayload {
+  """The deleted (soft-deleted, isActive=false) draft."""
+  draft: Draft
+}
+
+type CheckCustomDomainAvailabilityResult {
+  available: Boolean!
+  message: String
+}
+
+type CheckSubdomainAvailabilityResult {
+  available: Boolean!
+  message: String
+}

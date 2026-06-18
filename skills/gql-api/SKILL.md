@@ -76,6 +76,7 @@ Public feed/post/user/tag reads are **not** Pro-gated.
 
 ## Reference
 
+- [references/schema.graphql](references/schema.graphql) — full SDL (introspection schema) from `gql-beta`: the canonical source for every type, field, argument, and input. Use this when you need exact field names or types; use the curated files below for auth/Pro behavior the schema can't express.
 - [references/queries.md](references/queries.md) — all 13 queries: arguments, return types, auth/Pro notes.
 - [references/mutations.md](references/mutations.md) — all 9 mutations: inputs, payloads, auth/Pro notes.
 - [references/auth-and-roles.md](references/auth-and-roles.md) — PAT setup, public vs. authenticated, roles, contributor review flow.
