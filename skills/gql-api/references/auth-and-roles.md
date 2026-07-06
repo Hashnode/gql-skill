@@ -3,15 +3,21 @@
 ## Personal Access Token (PAT)
 
 The API authenticates with a Personal Access Token. Generate one in the Hashnode
-dashboard (Account Settings → Developer / API tokens) and send it on every
-authenticated request:
+dashboard (Account Settings → Developer / API tokens), export it as the
+`HASHNODE_PAT` environment variable, and send it on every authenticated request
+by shell interpolation — never as a literal value:
 
-```
-Authorization: Bearer YOUR_PAT
+```bash
+curl -H "Authorization: Bearer $HASHNODE_PAT" ...
 ```
 
 The `Bearer ` prefix is optional and case-insensitive. A deactivated user's token
 is treated as unauthenticated.
+
+**Treat the PAT like a password** — it can publish, edit, and delete content on
+the user's publications. Don't ask the user to paste it into the conversation
+(have them `export HASHNODE_PAT=...` in their shell instead), don't print or log
+it, and don't write it into files or commits.
 
 ## Public vs. authenticated operations
 

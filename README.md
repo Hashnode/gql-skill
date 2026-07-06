@@ -36,8 +36,11 @@ Markdown files layer on the auth and Pro-gating behavior the schema can't expres
 ## Using the API
 
 1. Get a Personal Access Token from the Hashnode dashboard
-   (Account Settings → Developer / API tokens).
-2. Send it on authenticated requests: `Authorization: Bearer YOUR_PAT`.
+   (Account Settings → Developer / API tokens) and export it:
+   `export HASHNODE_PAT=...`. Treat it like a password — it grants full write
+   access to your publications. Don't paste it into chats, scripts, or commits.
+2. Send it on authenticated requests via shell interpolation:
+   `Authorization: Bearer $HASHNODE_PAT`.
 3. POST GraphQL to `https://gql-beta.hashnode.com/`.
 
 Write mutations and publication-scoped reads require the target publication to

@@ -29,13 +29,25 @@ Introspection is enabled, so the schema is browsable from any GraphQL IDE.
 
 ## Authentication
 
-Auth uses a **Personal Access Token (PAT)**. Send it as a bearer token:
+Auth uses a **Personal Access Token (PAT)**. The token must be provided via the
+`HASHNODE_PAT` environment variable and passed by reference at execution time —
+never inline the literal token value:
 
-```
-Authorization: Bearer YOUR_PAT
+```bash
+curl -H "Authorization: Bearer $HASHNODE_PAT" ...
 ```
 
-Get a PAT from the Hashnode dashboard (Account Settings → Developer / API tokens).
+Get a PAT from the Hashnode dashboard (Account Settings → Developer / API tokens)
+and export it in the shell: `export HASHNODE_PAT=...`.
+
+**Token handling rules — the PAT is a password.** It grants full write access to
+the user's publications (publish, edit, delete):
+
+- Never ask the user to paste the token into the conversation. If `HASHNODE_PAT`
+  is unset, tell the user to export it in their shell and retry.
+- Never print, echo, or log the token, and never expand it into a command string —
+  always let the shell interpolate `$HASHNODE_PAT` inside the request itself.
+- Never write the token into files, scripts, or commits.
 
 - **Public reads** need no token: `post`, `feed`, `user`, `tag`, `publication`,
   `documentationProject`, `checkCustomDomainAvailability`, `checkSubdomainAvailability`.
@@ -86,8 +98,10 @@ Public feed/post/user/tag reads are **not** Pro-gated.
 
 ## Rules for the agent
 
-1. Always send `Authorization: Bearer <PAT>` for `me`, `draft`, `scheduledPost`,
-   and any mutation. Without it you get `UNAUTHENTICATED`.
+1. Always send `Authorization: Bearer $HASHNODE_PAT` (shell-interpolated from the
+   environment, never the literal token) for `me`, `draft`, `scheduledPost`, and
+   any mutation. Without it you get `UNAUTHENTICATED`. Follow the token handling
+   rules in the Authentication section: don't ask for, print, or persist the token.
 2. On `FORBIDDEN` + the Pro-plan message, stop and tell the user to upgrade the
    publication to Pro. Don't retry.
 3. Respect page-size caps: most connections cap `first` at **100**, drafts at
