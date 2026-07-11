@@ -1,3 +1,5 @@
+![Hashnode GQL Agent Skill — publish blog posts with AI agents via the Hashnode GraphQL API](https://raw.githubusercontent.com/Hashnode/gql-skill/main/.github/assets/hashnode-gql-skill-og.png)
+
 # Hashnode GQL Agent Skill — publish blog posts with AI agents
 
 The official [agent skill](https://skills.sh) for the **Hashnode GraphQL API**
