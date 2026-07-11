@@ -1,9 +1,9 @@
-# Hashnode GQL Agent Skill — publish blog posts with AI agents
+# Hashnode GQL Agent Skill: publish blog posts with AI agents
 
 The official [agent skill](https://skills.sh) for the **Hashnode GraphQL API**
 (`https://gql-beta.hashnode.com`). It turns Hashnode into an agent-based
-blogging platform: AI coding agents — **Claude Code, Cursor, GitHub Copilot,
-and any agent that supports skills** — learn how to read and write your
+blogging platform. AI coding agents such as **Claude Code, Cursor, GitHub
+Copilot, and any agent that supports skills** learn how to read and write your
 Hashnode blog correctly: publish and update posts, manage drafts, upload
 images, and paginate feeds, with the auth, Pro-plan, and rate-limit rules
 built in.
@@ -15,19 +15,19 @@ npx skills add Hashnode/gql-skill
 ```
 
 This installs the `gql-api` skill. The agent loads it automatically whenever
-you ask it to work with your Hashnode blog or the Hashnode API — no manual
-setup beyond exporting your token.
+you ask it to work with your Hashnode blog or the Hashnode API. No manual
+setup is needed beyond exporting your token.
 
 ## What your agent can do with it
 
-- **Publish a blog post with AI** — draft in your editor, then "publish this
-  to my Hashnode blog" (`publishPost`, `createDraft` → `publishDraft`).
-- **Automate blog publishing** — cross-post, backdate, schedule via drafts,
+- **Publish a blog post with AI**: draft in your editor, then "publish this
+  to my Hashnode blog" (`publishPost`, `createDraft` then `publishDraft`).
+- **Automate blog publishing**: cross-post, backdate, schedule via drafts,
   set SEO/OG metadata, add posts to a series, publish as co-authors.
-- **Upload images** — two-step presigned S3 flow for covers and OG images.
-- **Read anything public** — posts, feeds, users, tags, and publications,
+- **Upload images**: two-step presigned S3 flow for covers and OG images.
+- **Read anything public**: posts, feeds, users, tags, and publications,
   with correct cursor pagination.
-- **Respect the rules** — the skill teaches the agent Hashnode's Pro-plan
+- **Respect the rules**: the skill teaches the agent Hashnode's Pro-plan
   gating, page-size caps, query-depth limits, and token hygiene, so requests
   don't fail in loops.
 
@@ -37,9 +37,9 @@ setup beyond exporting your token.
 skills/gql-api/
 ├── SKILL.md                    # endpoint, auth, Pro-gating rules, agent rules
 └── references/
-    ├── schema.graphql          # full introspection schema (SDL) — canonical type reference
-    ├── queries.md              # all queries — args, returns, auth/Pro flags
-    ├── mutations.md            # all mutations — inputs, payloads, auth/Pro flags
+    ├── schema.graphql          # full introspection schema (SDL), canonical type reference
+    ├── queries.md              # all queries: args, returns, auth/Pro flags
+    ├── mutations.md            # all mutations: inputs, payloads, auth/Pro flags
     ├── auth-and-roles.md       # PAT setup, public vs auth, roles, contributor flow
     ├── errors-and-limits.md    # error codes, page caps, depth, payload/image limits
     └── recipes.md              # publish a post, paginate, upload an image
@@ -60,7 +60,7 @@ API tokens**) and export it in your shell:
 export HASHNODE_PAT=...
 ```
 
-Treat it like a password — it grants full write access to your publications.
+Treat it like a password: it grants full write access to your publications.
 Don't paste it into chats, scripts, or commits. Authenticated requests send it
 by shell interpolation only: `Authorization: Bearer $HASHNODE_PAT`.
 
@@ -68,15 +68,15 @@ by shell interpolation only: `Authorization: Bearer $HASHNODE_PAT`.
 
 Public reads (posts, feeds, users, tags) are free and need no token. Write
 mutations and publication-scoped reads require the target publication to have
-an active [**Hashnode Pro**](https://hashnode.com/pro) plan — see the
+an active [**Hashnode Pro**](https://hashnode.com/pro) plan. See the
 [changelog announcement](https://hashnode.com/changelog/2026-05-13-graphql-api-paid-access)
 and the full gating rules in [skills/gql-api/SKILL.md](skills/gql-api/SKILL.md).
 
-### Agent skill vs. MCP server — which is this?
+### Agent skill vs. MCP server: which is this?
 
 This is a **skill**: a set of instructions and references the agent loads into
-context, so it can call the GraphQL API directly with plain HTTP — no extra
-server process, works in any skills-compatible agent.
+context, so it can call the GraphQL API directly with plain HTTP. There is no
+extra server process, and it works in any skills-compatible agent.
 
 ### Which agents does it work with?
 
