@@ -68,7 +68,7 @@ by shell interpolation only: `Authorization: Bearer $HASHNODE_PAT`.
 
 Public reads (posts, feeds, users, tags) are free and need no token. Write
 mutations and publication-scoped reads require the target publication to have
-an active **Hashnode Pro** plan — see the
+an active [**Hashnode Pro**](https://hashnode.com/pro) plan — see the
 [changelog announcement](https://hashnode.com/changelog/2026-05-13-graphql-api-paid-access)
 and the full gating rules in [skills/gql-api/SKILL.md](skills/gql-api/SKILL.md).
 
