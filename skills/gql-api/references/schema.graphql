@@ -182,7 +182,13 @@ type Publication {
   canonicalURL: String
   favicon: String
   about: Content
-  descriptionSEO: String
+  descriptionSEO: String @deprecated(reason: "Use seo.description")
+
+  """
+  SEO settings of the publication. Returns only explicitly set values,
+  with no fallback to the publication name or about text.
+  """
+  seo: SEO
   author: User!
   post(slug: String!): Post
   redirectedPost(slug: String!): RedirectedPost

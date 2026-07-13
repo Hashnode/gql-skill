@@ -54,10 +54,15 @@ members, static pages, etc. (all cursor-paginated — see errors-and-limits.md).
 query ($host: String!) {
   publication(host: $host) {
     id title url isTeam followersCount
+    seo { title description }
     posts(first: 10) { edges { node { id title } } pageInfo { hasNextPage endCursor } }
   }
 }
 ```
+
+`seo` returns only values explicitly set in the publication's SEO settings,
+and `null` otherwise, with no fallback to the publication name or about text.
+`descriptionSEO` is deprecated in favor of `seo.description`.
 
 ## user
 
