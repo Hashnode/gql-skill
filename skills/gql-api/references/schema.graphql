@@ -311,6 +311,7 @@ type PublicationIntegrations {
   wmPaymentPointer: String
   koalaPublicKey: String
   msClarityID: String
+  openPanelClientId: String
 }
 
 type PublicationLinks {
