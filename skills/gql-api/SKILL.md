@@ -87,6 +87,28 @@ Pro-gated operations:
 
 Public feed/post/user/tag reads are **not** Pro-gated.
 
+## Linking to Hashnode pages (never guess URLs)
+
+When you need to link to a post's discussion, a comment, or a profile on
+hashnode.com, build the URL from API data using these exact formats. Do not
+browse hashnode.com to discover URL schemes, and do not invent paths.
+
+| Page | URL format |
+|------|-----------|
+| Post discussion on hashnode.com | `https://hashnode.com/posts/<slug>/<postId>` |
+| A specific comment | `https://hashnode.com/posts/<slug>/<postId>/comment/<commentId>` |
+| User profile | `https://hashnode.com/@<username>` |
+| Post on the author's own blog | Use the post's `url` field from the API; it already resolves the custom domain vs `<username>.hashnode.dev` |
+
+- `<slug>` and `<postId>` are the post's `slug` and `id` from the API. **Both
+  are required**; there is no id-only or slug-only form.
+- `<commentId>` is the comment's `id` from the post's `comments` connection.
+- Legacy paths like `/discussions/post/<id>` and `/<postId>` **404**. Never
+  emit them.
+
+Example: post `id: 6a603fb103e2cb323e7851f6`, `slug: sealed-with-a-kyss-inside-an-android-banking-rat`
+→ `https://hashnode.com/posts/sealed-with-a-kyss-inside-an-android-banking-rat/6a603fb103e2cb323e7851f6`
+
 ## Reference
 
 - [references/schema.graphql](references/schema.graphql) — full SDL (introspection schema) from `gql-beta`: the canonical source for every type, field, argument, and input. Use this when you need exact field names or types; use the curated files below for auth/Pro behavior the schema can't express.
@@ -111,3 +133,5 @@ Public feed/post/user/tag reads are **not** Pro-gated.
 6. Pagination is cursor-based: read `pageInfo.endCursor` / `pageInfo.hasNextPage`,
    pass `endCursor` as the next `after`.
 7. Mutations are never cached; queries may be cached for up to ~25s.
+8. Build hashnode.com links from API data using the formats in "Linking to
+   Hashnode pages". Never guess or browse for URL schemes.

@@ -127,3 +127,47 @@ query Search($filter: SearchPostsOfPublicationFilter!) {
   }
 }
 ```
+
+## Link to a post's discussion or a comment on hashnode.com
+
+The discussion URL needs the post's `slug` AND `id`; a comment permalink adds
+the comment's `id`. Three ways to get them, in order of preference:
+
+**1. You just published the post.** The `publishPost` / `publishDraft` payload
+already returns `post { id slug url }`. Build the link from that; no extra
+query needed.
+
+**2. You have the post id.** The `post` query is public and not Pro-gated:
+
+```graphql
+query PostLinkParts($id: ID!) {
+  post(id: $id) {
+    id
+    slug
+    url
+    comments(first: 20) {
+      edges { node { id author { username } } }
+    }
+  }
+}
+```
+
+**3. You only have the host and slug.** Use `publication(host:) { post(slug:) }`
+with the same fields. Note the `publication` query is Pro-gated: it fails with
+`FORBIDDEN` unless the target publication has an active Pro plan.
+
+Then build:
+
+- Discussion: `https://hashnode.com/posts/<slug>/<post.id>`
+- Comment: `https://hashnode.com/posts/<slug>/<post.id>/comment/<comment.id>`
+- Post on the author's blog: the post's `url` field, as returned.
+
+Example with `slug: sealed-with-a-kyss-inside-an-android-banking-rat`,
+`id: 6a603fb103e2cb323e7851f6`:
+
+```
+https://hashnode.com/posts/sealed-with-a-kyss-inside-an-android-banking-rat/6a603fb103e2cb323e7851f6
+```
+
+Legacy schemes (`/discussions/post/<id>`, id-only, slug-only) 404. Never emit
+them, and never browse hashnode.com to reverse-engineer URL formats.
