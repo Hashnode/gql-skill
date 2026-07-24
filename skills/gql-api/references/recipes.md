@@ -79,8 +79,9 @@ mutation ($input: CreateImageUploadInput!) {
 
 with `{ "input": { "contentType": "image/png" } }`.
 
-Step 2 — POST the file to `presignedPost.url` as `multipart/form-data`, including
-every key/value from `presignedPost.fields` first, then the `file` field last:
+Step 2 — POST the file directly to `presignedPost.url` (the S3 bucket; no other
+server is involved) as `multipart/form-data`, including every key/value from
+`presignedPost.fields` first, then the `file` field last:
 
 ```bash
 curl -X POST "<presignedPost.url>" \
@@ -89,9 +90,18 @@ curl -X POST "<presignedPost.url>" \
   -F "file=@./cover.png"
 ```
 
-The resulting object URL (built from the upload URL + key) is what you pass as
-`coverImage` / `ogImage` in `publishPost` or as `coverImageOptions.coverImageURL`
-in `createDraft`. Constraints: `image/*` only, no SVG, 8 MB max.
+Step 3 — build the final image URL by prefixing `fields.key` with the CDN host:
+
+```
+https://cdn.hashnode.com/<fields.key>
+```
+
+e.g. `https://cdn.hashnode.com/res/hashnode/image/upload/v1712345678901/abc123.png`.
+**Do not use the S3 object URL** (`presignedPost.url` + key). The CDN is the
+canonical host; raw S3 URLs bypass Hashnode's image resize pipeline and may stop
+resolving if bucket access is tightened. The CDN URL is what you pass as `coverImage` /
+`ogImage` in `publishPost` or as `coverImageOptions.coverImageURL` in
+`createDraft`. Constraints: `image/*` only, no SVG, 8 MB max.
 
 ## Paginate a feed
 

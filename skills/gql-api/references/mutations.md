@@ -128,4 +128,6 @@ mutation ($input: CreateImageUploadInput!) {
 ```
 
 `presignedPost.fields` is a `JSONObject` of form fields to include in the upload
-POST body alongside the file.
+POST body alongside the file. `presignedPost.url` is the raw S3 bucket URL;
+upload goes straight there. The final, servable image URL is
+`https://cdn.hashnode.com/<fields.key>`, not the S3 object URL.
