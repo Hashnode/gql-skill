@@ -49,6 +49,9 @@ query ($id: ID!) {
 Publication by `id` or `host`. The publication must be on Pro, or the call
 returns `FORBIDDEN`. Exposes nested connections for posts, drafts, series,
 members, static pages, etc. (all cursor-paginated — see errors-and-limits.md).
+`members` and `publicMembers` exclude members whose visibility is set to
+private (dashboard Members page, Visibility column); there is no way to list
+private members through the public API.
 
 ```graphql
 query ($host: String!) {

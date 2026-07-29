@@ -198,7 +198,13 @@ type Publication {
   seriesList(first: Int!, after: String): SeriesConnection!
   staticPage(slug: String!): StaticPage
   staticPages(first: Int!, after: String): StaticPageConnection!
+  """
+  Members of the publication. Members who set their visibility to private are excluded.
+  """
   members(first: Int!, after: String): PublicationMemberConnection!
+  """
+  Count of publicly visible members. Members who set their visibility to private are excluded.
+  """
   publicMembers(page: Int!, pageSize: Int!): PublicMembers!
   isGitHubBackupEnabled: Boolean!
   isGithubAsSourceConnected: Boolean!
