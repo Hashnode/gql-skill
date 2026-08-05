@@ -115,6 +115,20 @@ type PublicationFeatures {
   headlessCMS: HeadlessCMSFeature
 }
 
+type PublicationAeoSettings {
+  isEnabled: Boolean!
+  llmsTxtEnabled: Boolean!
+  crawlers: AeoCrawlerSettings!
+}
+
+type AeoCrawlerSettings {
+  gptBot: Boolean!
+  claudeBot: Boolean!
+  perplexityBot: Boolean!
+  googleExtended: Boolean!
+  ccBot: Boolean!
+}
+
 type ProTeamFeature {
   isEnabled: Boolean!
 }
@@ -229,6 +243,7 @@ type Publication {
   metaTags: String
   ogMetaData: OpenGraphMetaData
   features: PublicationFeatures!
+  aeoSettings: PublicationAeoSettings!
   domainInfo: DomainInfo!
   isHeadless: Boolean!
   headerColor: String
@@ -446,6 +461,12 @@ type Post {
   ogMetaData: OpenGraphMetaData
   features: PostFeatures!
   preferences: PostPreferences!
+  faq: [PostFaqItem!]!
+}
+
+type PostFaqItem {
+  question: String!
+  answer: String!
 }
 
 type Content {
