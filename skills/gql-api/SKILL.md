@@ -87,6 +87,13 @@ Pro-gated operations:
 
 Public feed/post/user/tag reads are **not** Pro-gated.
 
+Hashnode also has a **Growth Plan** (Pro + the AEO toolkit). It adds no new
+gates to this API: `publication.aeoSettings` and `post.faq` are readable on
+the same terms as their parent types, and `aeoSettings` resolves with
+permissive defaults for non-Growth publications (`isEnabled` tells you
+whether the publication actually has the toolkit). See "AEO fields" in
+[references/queries.md](references/queries.md).
+
 ## Linking to Hashnode pages (never guess URLs)
 
 When you need to link to a post's discussion, a comment, or a profile on

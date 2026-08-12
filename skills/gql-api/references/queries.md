@@ -170,6 +170,47 @@ query ($host: String!) {
 }
 ```
 
+## AEO fields (Growth Plan)
+
+Two read-only field groups back the AEO toolkit (Growth Plan = Pro + AEO).
+Both are plain fields on existing types, not new root queries, and neither
+adds a new gate: `publication.aeoSettings` rides the Pro-gated `publication`
+query, and `post.faq` is public like the rest of `post`.
+
+`Publication.aeoSettings` always resolves. Non-Growth publications get
+permissive defaults, so consumers never need to branch on entitlement:
+
+```graphql
+query ($host: String!) {
+  publication(host: $host) {
+    aeoSettings {
+      isEnabled          # true only when the publication has the Growth Plan
+      llmsTxtEnabled     # whether the blog serves /llms.txt
+      crawlers {         # per-bot robots.txt allowances; true = allowed
+        gptBot claudeBot perplexityBot googleExtended ccBot
+      }
+    }
+  }
+}
+```
+
+Semantics: for non-Growth publications every crawler defaults to allowed
+except `gptBot`, which follows the publication's legacy GPT-crawling setting.
+`isEnabled` is the entitlement signal: the blog only serves `/llms.txt` and
+renders FAQ blocks when it is true.
+
+`Post.faq` is the post's FAQ list (rendered on the blog with FAQPage
+structured data). Answers are markdown; the list is empty when the post has
+no FAQ:
+
+```graphql
+query ($id: ID!) {
+  post(id: $id) {
+    faq { question answer }
+  }
+}
+```
+
 ## Custom scalars
 
 - `DateTime` — ISO 8601 string.
