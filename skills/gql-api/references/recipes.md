@@ -62,25 +62,28 @@ mutation Submit($input: SubmitDraftForReviewInput!) {
 
 An owner/editor/author then publishes or calls `rejectDraftSubmission`.
 
-## Upload an image (two steps)
+## Upload an image
 
-`createImageUploadURL` returns a presigned S3 POST. You must then upload the file
-to S3 yourself — the GraphQL call does not accept the bytes.
-
-Step 1 — get the presigned POST:
+`createImageUploadURL` returns two independent upload options in one call —
+`presignedPost` (S3, form POST) and `presignedPut` (R2, single PUT). Use
+whichever one fits your client; you don't need both. The GraphQL call itself
+never accepts the image bytes — you upload directly to the storage bucket.
 
 ```graphql
 mutation ($input: CreateImageUploadInput!) {
   createImageUploadURL(input: $input) {
     presignedPost { url fields }
+    presignedPut { url cdnUrl key }
   }
 }
 ```
 
 with `{ "input": { "contentType": "image/png" } }`.
 
-Step 2 — POST the file directly to `presignedPost.url` (the S3 bucket; no other
-server is involved) as `multipart/form-data`, including every key/value from
+### Option A — presignedPost (form POST, three steps)
+
+Step 1 — get the presigned POST (above), then POST the file directly to
+`presignedPost.url` as `multipart/form-data`, including every key/value from
 `presignedPost.fields` first, then the `file` field last:
 
 ```bash
@@ -90,7 +93,7 @@ curl -X POST "<presignedPost.url>" \
   -F "file=@./cover.png"
 ```
 
-Step 3 — build the final image URL by prefixing `fields.key` with the CDN host:
+Step 2 — build the final image URL by prefixing `fields.key` with the CDN host:
 
 ```
 https://cdn.hashnode.com/<fields.key>
@@ -99,9 +102,38 @@ https://cdn.hashnode.com/<fields.key>
 e.g. `https://cdn.hashnode.com/res/hashnode/image/upload/v1712345678901/abc123.png`.
 **Do not use the S3 object URL** (`presignedPost.url` + key). The CDN is the
 canonical host; raw S3 URLs bypass Hashnode's image resize pipeline and may stop
-resolving if bucket access is tightened. The CDN URL is what you pass as `coverImage` /
+resolving if bucket access is tightened. The 8 MB size cap is enforced by S3
+itself — an oversized POST is rejected outright, no extra step needed.
+
+### Option B — presignedPut (single PUT, then confirm)
+
+Step 1 — get `presignedPut` (above), then PUT the raw file bytes directly to
+`presignedPut.url` (no form fields):
+
+```bash
+curl -X PUT "<presignedPut.url>" \
+  -H "Content-Type: image/png" \
+  --data-binary "@./cover.png"
+```
+
+Step 2 — **required**: call `confirmImageUpload` with `presignedPut.key`. The
+PUT itself doesn't enforce the 8 MB cap — confirmation is what checks the size
+and deletes the object if it's over the limit:
+
+```graphql
+mutation ($input: ConfirmImageUploadInput!) {
+  confirmImageUpload(input: $input) { ok cdnUrl }
+}
+```
+
+If `ok` is `false`, the file was too large and has already been deleted — the
+upload failed, don't use `presignedPut.cdnUrl`. If `ok` is `true`, use
+`presignedPut.cdnUrl` (or the mutation's own `cdnUrl`, same value) as the
+final image URL.
+
+Either option's resulting CDN URL is what you pass as `coverImage` /
 `ogImage` in `publishPost` or as `coverImageOptions.coverImageURL` in
-`createDraft`. Constraints: `image/*` only, no SVG, 8 MB max.
+`createDraft`. Constraints for both: `image/*` only, no SVG, 8 MB max.
 
 ## Paginate a feed
 

@@ -120,7 +120,7 @@ Example: post `id: 6a603fb103e2cb323e7851f6`, `slug: sealed-with-a-kyss-inside-a
 
 - [references/schema.graphql](references/schema.graphql) — full SDL (introspection schema) from `gql-beta`: the canonical source for every type, field, argument, and input. Use this when you need exact field names or types; use the curated files below for auth/Pro behavior the schema can't express.
 - [references/queries.md](references/queries.md) — all 13 queries: arguments, return types, auth/Pro notes.
-- [references/mutations.md](references/mutations.md) — all 9 mutations: inputs, payloads, auth/Pro notes.
+- [references/mutations.md](references/mutations.md) — all 10 mutations: inputs, payloads, auth/Pro notes.
 - [references/auth-and-roles.md](references/auth-and-roles.md) — PAT setup, public vs. authenticated, roles, contributor review flow.
 - [references/errors-and-limits.md](references/errors-and-limits.md) — error codes, page-size caps, query depth, payload/image limits.
 - [references/recipes.md](references/recipes.md) — end-to-end examples: publish a post, paginate a feed, upload an image.
