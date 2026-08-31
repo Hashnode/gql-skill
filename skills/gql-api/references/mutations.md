@@ -132,13 +132,14 @@ mutation ($input: CreateImageUploadInput!) {
 
 The payload carries **two independent upload options** — use one, not both:
 
-- `presignedPost` — S3, form-style POST. `fields` is a `JSONObject` of form
+- `presignedPost` **(deprecated, removal planned 2026-09-07 — migrate to
+  `presignedPut`)** — form-style POST. `fields` is a `JSONObject` of form
   fields to include in the upload POST body alongside the file.
-  `presignedPost.url` is the raw S3 bucket URL. The final, servable image URL
-  is `https://cdn.hashnode.com/<fields.key>`, not the S3 object URL. The
-  8 MB cap is enforced by S3 itself at upload time — an oversized POST is
-  rejected outright.
-- `presignedPut` — R2, single-request PUT. Simpler (no form fields), but the
+  `presignedPost.url` is the raw bucket URL. The final, servable image URL
+  is `https://cdn.hashnode.com/<fields.key>`, not `presignedPost.url` itself.
+  The 8 MB cap is enforced at upload time — an oversized POST is rejected
+  outright.
+- `presignedPut` — single-request PUT. Simpler (no form fields), but the
   size cap **isn't enforced at upload time** — you must call
   `confirmImageUpload` with `presignedPut.key` right after the PUT succeeds,
   or an oversized file is left in place. `presignedPut.cdnUrl` is already the

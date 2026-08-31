@@ -65,9 +65,10 @@ An owner/editor/author then publishes or calls `rejectDraftSubmission`.
 ## Upload an image
 
 `createImageUploadURL` returns two independent upload options in one call —
-`presignedPost` (S3, form POST) and `presignedPut` (R2, single PUT). Use
-whichever one fits your client; you don't need both. The GraphQL call itself
-never accepts the image bytes — you upload directly to the storage bucket.
+`presignedPost` (form POST, **deprecated, removal planned 2026-09-07**) and
+`presignedPut` (single PUT — use this one for anything new). The GraphQL call
+itself never accepts the image bytes — you upload directly to the storage
+bucket.
 
 ```graphql
 mutation ($input: CreateImageUploadInput!) {
@@ -80,7 +81,7 @@ mutation ($input: CreateImageUploadInput!) {
 
 with `{ "input": { "contentType": "image/png" } }`.
 
-### Option A — presignedPost (form POST, three steps)
+### Option A — presignedPost (form POST, deprecated — removal planned 2026-09-07)
 
 Step 1 — get the presigned POST (above), then POST the file directly to
 `presignedPost.url` as `multipart/form-data`, including every key/value from
@@ -100,10 +101,11 @@ https://cdn.hashnode.com/<fields.key>
 ```
 
 e.g. `https://cdn.hashnode.com/res/hashnode/image/upload/v1712345678901/abc123.png`.
-**Do not use the S3 object URL** (`presignedPost.url` + key). The CDN is the
-canonical host; raw S3 URLs bypass Hashnode's image resize pipeline and may stop
-resolving if bucket access is tightened. The 8 MB size cap is enforced by S3
-itself — an oversized POST is rejected outright, no extra step needed.
+**Do not use the raw bucket URL** (`presignedPost.url` + key). The CDN is the
+canonical host; raw bucket URLs bypass Hashnode's image resize pipeline and
+may stop resolving if bucket access is tightened. The 8 MB size cap is
+enforced at upload time — an oversized POST is rejected outright, no extra
+step needed.
 
 ### Option B — presignedPut (single PUT, then confirm)
 

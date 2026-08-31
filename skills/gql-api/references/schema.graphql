@@ -995,12 +995,12 @@ input CreateImageUploadInput {
 }
 
 type CreateImageUploadPayload {
-  """Legacy S3 upload. POST the image and these fields as multipart/form-data."""
-  presignedPost: PresignedPost!
+  """POST the image and these fields as multipart/form-data."""
+  presignedPost: PresignedPost! @deprecated(reason: "Use presignedPut instead.")
 
   """
-  R2 upload. PUT the raw image bytes directly to this URL. Null if R2 isn't
-  configured. After a successful PUT, call confirmImageUpload with the key.
+  PUT the raw image bytes directly to this URL. Null if not available. After
+  a successful PUT, call confirmImageUpload with the key.
   """
   presignedPut: PresignedPut
 }
