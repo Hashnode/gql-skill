@@ -1,11 +1,11 @@
 # Mutations
 
-All 9 mutations. **Every mutation requires a valid PAT** (`UNAUTHENTICATED`
+All 10 mutations. **Every mutation requires a valid PAT** (`UNAUTHENTICATED`
 without one). All write mutations are **Pro-gated**: the target publication must
 have an active Pro plan, or the call returns `FORBIDDEN` with the message
 "Publication does not have an active Pro plan. Upgrade in your dashboard to
-access this via the API." `createImageUploadURL` requires auth but is not
-Pro-gated.
+access this via the API." `createImageUploadURL` and `confirmImageUpload`
+require auth but are not Pro-gated.
 
 | Mutation | Input | Payload | Access |
 |----------|-------|---------|--------|
@@ -17,7 +17,8 @@ Pro-gated.
 | `submitDraftForReview` | `SubmitDraftForReviewInput!` | `SubmitDraftForReviewPayload!` (`draft`) | Auth + Pro |
 | `rejectDraftSubmission` | `RejectDraftSubmissionInput!` | `RejectDraftSubmissionPayload!` (`draft`) | Auth + Pro |
 | `deleteDraft` | `DeleteDraftInput!` | `DeleteDraftPayload!` (`draft`) | Auth + Pro |
-| `createImageUploadURL` | `CreateImageUploadInput!` | `CreateImageUploadPayload!` (`presignedPost`) | Auth |
+| `createImageUploadURL` | `CreateImageUploadInput!` | `CreateImageUploadPayload!` (`presignedPost`, `presignedPut`) | Auth |
+| `confirmImageUpload` | `ConfirmImageUploadInput!` | `ConfirmImageUploadPayload!` (`ok`, `cdnUrl`) | Auth |
 
 ## publishPost
 
@@ -113,8 +114,9 @@ owners/admins/authors can delete any draft in the publication.
 
 ## createImageUploadURL
 
-Returns a presigned S3 POST for uploading an image. **Two-step flow** — see
-[recipes.md](recipes.md#upload-an-image). Auth required; not Pro-gated.
+Returns a presigned upload target for an image — see
+[recipes.md](recipes.md#upload-an-image) for the full flow. Auth required; not
+Pro-gated.
 
 `CreateImageUploadInput`: `{ contentType: String! }` — must start with `image/`
 (e.g. `image/png`). SVG is rejected; max image size is **8 MB**.
@@ -123,11 +125,42 @@ Returns a presigned S3 POST for uploading an image. **Two-step flow** — see
 mutation ($input: CreateImageUploadInput!) {
   createImageUploadURL(input: $input) {
     presignedPost { url fields }
+    presignedPut { url cdnUrl key }
   }
 }
 ```
 
-`presignedPost.fields` is a `JSONObject` of form fields to include in the upload
-POST body alongside the file. `presignedPost.url` is the raw S3 bucket URL;
-upload goes straight there. The final, servable image URL is
-`https://cdn.hashnode.com/<fields.key>`, not the S3 object URL.
+The payload carries **two independent upload options** — use one, not both:
+
+- `presignedPost` **(deprecated, removal planned 2026-09-07 — migrate to
+  `presignedPut`)** — form-style POST. `fields` is a `JSONObject` of form
+  fields to include in the upload POST body alongside the file.
+  `presignedPost.url` is the raw bucket URL. The final, servable image URL
+  is `https://cdn.hashnode.com/<fields.key>`, not `presignedPost.url` itself.
+  The 8 MB cap is enforced at upload time — an oversized POST is rejected
+  outright.
+- `presignedPut` — single-request PUT. Simpler (no form fields), but the
+  size cap **isn't enforced at upload time** — you must call
+  `confirmImageUpload` with `presignedPut.key` right after the PUT succeeds,
+  or an oversized file is left in place. `presignedPut.cdnUrl` is already the
+  final servable URL, computed in advance — use it once `confirmImageUpload`
+  returns `ok: true`.
+
+## confirmImageUpload
+
+Only needed after uploading via `presignedPut`. Verifies the uploaded object's
+size and deletes it if it exceeds 8 MB. Auth required; not Pro-gated.
+
+`ConfirmImageUploadInput`: `{ key: String! }` — the `key` from
+`createImageUploadURL`'s `presignedPut` field. The key must belong to the
+authenticated user (it's namespaced by user id); a mismatched key returns
+`FORBIDDEN`.
+
+```graphql
+mutation ($input: ConfirmImageUploadInput!) {
+  confirmImageUpload(input: $input) { ok cdnUrl }
+}
+```
+
+`ok: false` means the image was over the limit and has been deleted — treat
+`cdnUrl` (`null` in that case) as unusable and re-upload a smaller file.

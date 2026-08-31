@@ -856,6 +856,13 @@ type Mutation {
   Returns a presigned URL for uploading an image to Hashnode's CDN. Requires authentication.
   """
   createImageUploadURL(input: CreateImageUploadInput!): CreateImageUploadPayload!
+
+  """
+  Verifies a PUT-uploaded image (from presignedPut) is within the size limit,
+  deleting it if not. Call this after a successful PUT to presignedPut.url.
+  Requires authentication.
+  """
+  confirmImageUpload(input: ConfirmImageUploadInput!): ConfirmImageUploadPayload!
 }
 
 input PublishPostInput {
@@ -988,7 +995,14 @@ input CreateImageUploadInput {
 }
 
 type CreateImageUploadPayload {
-  presignedPost: PresignedPost!
+  """POST the image and these fields as multipart/form-data."""
+  presignedPost: PresignedPost! @deprecated(reason: "Use presignedPut instead.")
+
+  """
+  PUT the raw image bytes directly to this URL. Null if not available. After
+  a successful PUT, call confirmImageUpload with the key.
+  """
+  presignedPut: PresignedPut
 }
 
 type PresignedPost {
@@ -999,6 +1013,28 @@ type PresignedPost {
   The fields to include in the POST request body along with the image file.
   """
   fields: JSONObject!
+}
+
+type PresignedPut {
+  """The URL to PUT the raw image bytes to."""
+  url: String!
+
+  """The public CDN URL the image will be available at once uploaded."""
+  cdnUrl: String!
+
+  """The object key. Pass this to confirmImageUpload after uploading."""
+  key: String!
+}
+
+input ConfirmImageUploadInput {
+  """The key returned by createImageUploadURL's presignedPut field."""
+  key: String!
+}
+
+type ConfirmImageUploadPayload {
+  """False if the image exceeded the size limit and was deleted."""
+  ok: Boolean!
+  cdnUrl: String
 }
 
 input CreateDraftSettingsInput {
