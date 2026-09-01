@@ -819,6 +819,14 @@ type Mutation {
   updatePost(input: UpdatePostInput!): UpdatePostPayload!
 
   """
+  Removes a post from your publication (soft delete). It disappears from
+  feeds and listings and its slug becomes available for reuse. Only the
+  post's author or a publication admin can remove it. Requires an active
+  Pro plan and authentication.
+  """
+  removePost(input: RemovePostInput!): RemovePostPayload!
+
+  """
   Create a new draft on a publication without publishing it. Requires authentication.
   """
   createDraft(input: CreateDraftInput!): CreateDraftPayload!
@@ -985,6 +993,11 @@ input UpdatePostInput {
 
   """Backdate the post."""
   publishedAt: DateTime
+}
+
+input RemovePostInput {
+  """The post ID to remove."""
+  id: ID!
 }
 
 input CreateImageUploadInput {
@@ -1188,6 +1201,11 @@ type PublishPostPayload {
 
 type UpdatePostPayload {
   post: Post!
+}
+
+type RemovePostPayload {
+  """The removed (soft-deleted, isActive=false) post."""
+  post: Post
 }
 
 type CreateDraftPayload {
