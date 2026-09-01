@@ -1,6 +1,6 @@
 # Mutations
 
-All 10 mutations. **Every mutation requires a valid PAT** (`UNAUTHENTICATED`
+All 11 mutations. **Every mutation requires a valid PAT** (`UNAUTHENTICATED`
 without one). All write mutations are **Pro-gated**: the target publication must
 have an active Pro plan, or the call returns `FORBIDDEN` with the message
 "Publication does not have an active Pro plan. Upgrade in your dashboard to
@@ -11,6 +11,7 @@ require auth but are not Pro-gated.
 |----------|-------|---------|--------|
 | `publishPost` | `PublishPostInput!` | `PublishPostPayload!` (`post`) | Auth + Pro |
 | `updatePost` | `UpdatePostInput!` | `UpdatePostPayload!` (`post`) | Auth + Pro |
+| `removePost` | `RemovePostInput!` | `RemovePostPayload!` (`post`) | Auth + Pro + author/admin only |
 | `createDraft` | `CreateDraftInput!` | `CreateDraftPayload!` (`draft`) | Auth + Pro |
 | `updateDraft` | `UpdateDraftInput!` | `UpdateDraftPayload!` (`draft`) | Auth + Pro |
 | `publishDraft` | `PublishDraftInput!` | `PublishDraftPayload!` (`post`) | Auth + Pro |
@@ -54,6 +55,29 @@ mutation ($input: UpdatePostInput!) {
   updatePost(input: $input) { post { id slug url } }
 }
 ```
+
+## removePost
+
+Soft-delete a post: sets it inactive, drops it from feeds/listings, frees its
+slug for reuse. Unlike every other mutation here, this one is also restricted
+by role — the post's **author or a publication admin** only. Co-authors
+cannot remove a post (they can edit via `updatePost`, but not delete).
+
+Note: a removed post is currently still fetchable directly via the `post(id)`
+query (no `isActive` filter there) — it only disappears from `feed` and other
+listing queries.
+
+```graphql
+mutation ($input: RemovePostInput!) {
+  removePost(input: $input) { post { id title slug } }
+}
+```
+
+`RemovePostInput`: `{ id: ID! }`. Returns the removed `post`, or errors:
+- `NOT_FOUND` — no active post with that id (also returned on a second
+  removal attempt — the operation is idempotent-safe, not an error retry).
+- `FORBIDDEN` — either the publication isn't Pro, or the caller is neither
+  the post's author nor a publication admin.
 
 ## createDraft
 
