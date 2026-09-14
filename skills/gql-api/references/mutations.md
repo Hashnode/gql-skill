@@ -50,6 +50,9 @@ mutation ($input: PublishPostInput!) {
 Update an existing post. `UpdatePostInput` mirrors `PublishPostInput` but keyed
 by `id: ID!`; all content fields optional.
 
+To **change the author** of an existing post, pass `publishAs: ObjectId` — the
+target user must already be a member of the publication (team publications only).
+
 ```graphql
 mutation ($input: UpdatePostInput!) {
   updatePost(input: $input) { post { id slug url } }
@@ -101,6 +104,9 @@ mutation ($input: CreateDraftInput!) {
 
 Update an existing draft. `UpdateDraftInput` mirrors `CreateDraftInput` but keyed
 by `draftId: ID!`.
+
+To **change the author** of an existing draft, pass `publishAs: ObjectId` — the
+target user must already be a member of the publication (team publications only).
 
 ## publishDraft
 
