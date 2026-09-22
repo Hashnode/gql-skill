@@ -1008,24 +1008,11 @@ input CreateImageUploadInput {
 }
 
 type CreateImageUploadPayload {
-  """POST the image and these fields as multipart/form-data."""
-  presignedPost: PresignedPost! @deprecated(reason: "Use presignedPut instead.")
-
   """
-  PUT the raw image bytes directly to this URL. Null if not available. After
-  a successful PUT, call confirmImageUpload with the key.
+  PUT the raw image bytes directly to this URL. After a successful PUT,
+  call confirmImageUpload with the key.
   """
-  presignedPut: PresignedPut
-}
-
-type PresignedPost {
-  """The URL to POST the image to."""
-  url: String!
-
-  """
-  The fields to include in the POST request body along with the image file.
-  """
-  fields: JSONObject!
+  presignedPut: PresignedPut!
 }
 
 type PresignedPut {

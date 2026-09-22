@@ -18,7 +18,7 @@ require auth but are not Pro-gated.
 | `submitDraftForReview` | `SubmitDraftForReviewInput!` | `SubmitDraftForReviewPayload!` (`draft`) | Auth + Pro |
 | `rejectDraftSubmission` | `RejectDraftSubmissionInput!` | `RejectDraftSubmissionPayload!` (`draft`) | Auth + Pro |
 | `deleteDraft` | `DeleteDraftInput!` | `DeleteDraftPayload!` (`draft`) | Auth + Pro |
-| `createImageUploadURL` | `CreateImageUploadInput!` | `CreateImageUploadPayload!` (`presignedPost`, `presignedPut`) | Auth |
+| `createImageUploadURL` | `CreateImageUploadInput!` | `CreateImageUploadPayload!` (`presignedPut`) | Auth |
 | `confirmImageUpload` | `ConfirmImageUploadInput!` | `ConfirmImageUploadPayload!` (`ok`, `cdnUrl`) | Auth |
 
 ## publishPost
@@ -154,27 +154,20 @@ Pro-gated.
 ```graphql
 mutation ($input: CreateImageUploadInput!) {
   createImageUploadURL(input: $input) {
-    presignedPost { url fields }
     presignedPut { url cdnUrl key }
   }
 }
 ```
 
-The payload carries **two independent upload options** — use one, not both:
+`presignedPut` is a single-request PUT (no form fields). The size cap
+**isn't enforced at upload time** — you must call `confirmImageUpload` with
+`presignedPut.key` right after the PUT succeeds, or an oversized file is
+left in place. `presignedPut.cdnUrl` is already the final servable URL,
+computed in advance — use it once `confirmImageUpload` returns `ok: true`.
 
-- `presignedPost` **(deprecated, removal planned 2026-09-07 — migrate to
-  `presignedPut`)** — form-style POST. `fields` is a `JSONObject` of form
-  fields to include in the upload POST body alongside the file.
-  `presignedPost.url` is the raw bucket URL. The final, servable image URL
-  is `https://cdn.hashnode.com/<fields.key>`, not `presignedPost.url` itself.
-  The 8 MB cap is enforced at upload time — an oversized POST is rejected
-  outright.
-- `presignedPut` — single-request PUT. Simpler (no form fields), but the
-  size cap **isn't enforced at upload time** — you must call
-  `confirmImageUpload` with `presignedPut.key` right after the PUT succeeds,
-  or an oversized file is left in place. `presignedPut.cdnUrl` is already the
-  final servable URL, computed in advance — use it once `confirmImageUpload`
-  returns `ok: true`.
+`presignedPost` (the old form-POST option) was removed 2026-09-22. If you're
+on an older integration still requesting it, drop it from your query and
+switch to `presignedPut` above.
 
 ## confirmImageUpload
 

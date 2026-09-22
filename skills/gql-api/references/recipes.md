@@ -64,50 +64,19 @@ An owner/editor/author then publishes or calls `rejectDraftSubmission`.
 
 ## Upload an image
 
-`createImageUploadURL` returns two independent upload options in one call —
-`presignedPost` (form POST, **deprecated, removal planned 2026-09-07**) and
-`presignedPut` (single PUT — use this one for anything new). The GraphQL call
-itself never accepts the image bytes — you upload directly to the storage
-bucket.
+`createImageUploadURL` returns a `presignedPut` (single PUT). The GraphQL
+call itself never accepts the image bytes — you upload directly to the
+storage bucket.
 
 ```graphql
 mutation ($input: CreateImageUploadInput!) {
   createImageUploadURL(input: $input) {
-    presignedPost { url fields }
     presignedPut { url cdnUrl key }
   }
 }
 ```
 
 with `{ "input": { "contentType": "image/png" } }`.
-
-### Option A — presignedPost (form POST, deprecated — removal planned 2026-09-07)
-
-Step 1 — get the presigned POST (above), then POST the file directly to
-`presignedPost.url` as `multipart/form-data`, including every key/value from
-`presignedPost.fields` first, then the `file` field last:
-
-```bash
-curl -X POST "<presignedPost.url>" \
-  -F "key=<fields.key>" \
-  # ...all other entries from presignedPost.fields... \
-  -F "file=@./cover.png"
-```
-
-Step 2 — build the final image URL by prefixing `fields.key` with the CDN host:
-
-```
-https://cdn.hashnode.com/<fields.key>
-```
-
-e.g. `https://cdn.hashnode.com/res/hashnode/image/upload/v1712345678901/abc123.png`.
-**Do not use the raw bucket URL** (`presignedPost.url` + key). The CDN is the
-canonical host; raw bucket URLs bypass Hashnode's image resize pipeline and
-may stop resolving if bucket access is tightened. The 8 MB size cap is
-enforced at upload time — an oversized POST is rejected outright, no extra
-step needed.
-
-### Option B — presignedPut (single PUT, then confirm)
 
 Step 1 — get `presignedPut` (above), then PUT the raw file bytes directly to
 `presignedPut.url` (no form fields):
@@ -133,9 +102,9 @@ upload failed, don't use `presignedPut.cdnUrl`. If `ok` is `true`, use
 `presignedPut.cdnUrl` (or the mutation's own `cdnUrl`, same value) as the
 final image URL.
 
-Either option's resulting CDN URL is what you pass as `coverImage` /
-`ogImage` in `publishPost` or as `coverImageOptions.coverImageURL` in
-`createDraft`. Constraints for both: `image/*` only, no SVG, 8 MB max.
+That CDN URL is what you pass as `coverImage` / `ogImage` in `publishPost` or
+as `coverImageOptions.coverImageURL` in `createDraft`. Constraints:
+`image/*` only, no SVG, 8 MB max.
 
 ## Paginate a feed
 
