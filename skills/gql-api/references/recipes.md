@@ -150,7 +150,8 @@ the comment's `id`. Three ways to get them, in order of preference:
 already returns `post { id slug url }`. Build the link from that; no extra
 query needed.
 
-**2. You have the post id.** The `post` query is public and not Pro-gated:
+**2. You have the post id.** The `post` query is Pro-gated like `publication`:
+it fails with `FORBIDDEN` unless the post's publication has an active Pro plan.
 
 ```graphql
 query PostLinkParts($id: ID!) {

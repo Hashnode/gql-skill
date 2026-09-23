@@ -68,7 +68,8 @@ cannot remove a post (they can edit via `updatePost`, but not delete).
 
 Note: a removed post is currently still fetchable directly via the `post(id)`
 query (no `isActive` filter there) — it only disappears from `feed` and other
-listing queries.
+listing queries. Like any other post, this requires the owning publication to
+be on Pro (see [queries.md](queries.md)).
 
 ```graphql
 mutation ($input: RemovePostInput!) {
