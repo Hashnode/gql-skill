@@ -40,10 +40,8 @@ curl -H "Authorization: Bearer $HASHNODE_PAT" -H "x-hashnode-client: gql-skill" 
 Get a PAT from the Hashnode dashboard (Account Settings → Developer / API tokens)
 and export it in the shell: `export HASHNODE_PAT=...`.
 
-Always also send `x-hashnode-client: gql-skill` on every request. It's a
-display-only identifier (shows up in gql's admin tooling and Axiom logs as the
-post's/request's source) — it grants no access and isn't a secret, just tags
-requests as coming from this skill rather than a raw script.
+Also send `x-hashnode-client: gql-skill` on every request, so the API can tell
+this skill's traffic apart from other callers. Not a secret, grants no access.
 
 **Token handling rules — the PAT is a password.** It grants full write access to
 the user's publications (publish, edit, delete):
