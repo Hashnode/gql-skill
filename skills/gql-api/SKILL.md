@@ -84,8 +84,11 @@ Pro-gated operations:
 - **Publication-scoped reads:** `publication`, `draft`, `scheduledPost`,
   `searchPostsOfPublication`, `topCommenters`. (`draft` and `scheduledPost` also
   require a PAT and authorization; the owning publication must be Pro.)
+- **Single-post reads:** `post(id: ...)`. Gated on the owning publication's
+  Pro plan, same as `publication`. There's no free-tier carve-out for
+  reading one post by id.
 
-Public feed/post/user/tag reads are **not** Pro-gated.
+`feed`, `user`, and `tag` reads are **not** Pro-gated.
 
 Hashnode also has a **Growth Plan** (Pro + the AEO toolkit). It adds no new
 gates to this API: `publication.aeoSettings` and `post.faq` are readable on

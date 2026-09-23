@@ -7,7 +7,7 @@ PAT required, **Pro** = the target publication must have an active Pro plan
 | Query | Args | Returns | Access |
 |-------|------|---------|--------|
 | `me` | — | `MyUser` | Auth |
-| `post` | `id: ID!` | `Post` | Public |
+| `post` | `id: ID!` | `Post` | Pro |
 | `publication` | `id: ObjectId, host: String` | `Publication` | Pro |
 | `user` | `username: String!` | `User` | Public |
 | `tag` | `slug: String!` | `Tag` | Public |
@@ -28,9 +28,10 @@ Current authenticated user. Requires a PAT; returns `UNAUTHENTICATED` without on
 query { me { id username name email } }
 ```
 
-## post
+## post (Pro)
 
-Single post by id.
+Single post by id. Pro-gated: the post's publication must be on Pro, or the
+call returns `FORBIDDEN`, same gate as `publication`.
 
 ```graphql
 query ($id: ID!) {

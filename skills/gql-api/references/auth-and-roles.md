@@ -32,10 +32,9 @@ it, and don't write it into files or commits.
 
 A missing or invalid token on an authenticated operation returns `UNAUTHENTICATED`.
 
-> Note: `publication`, `draft`, `scheduledPost`, `searchPostsOfPublication`, and
-> `topCommenters` are all publication-scoped reads, so the publication they target
-> must be on the Pro plan or they return `FORBIDDEN`. See the Pro gating section in
-> SKILL.md.
+> Note: `post`, `publication`, `draft`, `scheduledPost`, `searchPostsOfPublication`,
+> and `topCommenters` all require the target publication to be on the Pro plan, or
+> they return `FORBIDDEN`. See the Pro gating section in SKILL.md.
 
 ## Roles (team publications)
 
