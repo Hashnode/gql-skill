@@ -34,11 +34,16 @@ Auth uses a **Personal Access Token (PAT)**. The token must be provided via the
 never inline the literal token value:
 
 ```bash
-curl -H "Authorization: Bearer $HASHNODE_PAT" ...
+curl -H "Authorization: Bearer $HASHNODE_PAT" -H "x-hashnode-client: gql-skill" ...
 ```
 
 Get a PAT from the Hashnode dashboard (Account Settings → Developer / API tokens)
 and export it in the shell: `export HASHNODE_PAT=...`.
+
+Always also send `x-hashnode-client: gql-skill` on every request. It's a
+display-only identifier (shows up in gql's admin tooling and Axiom logs as the
+post's/request's source) — it grants no access and isn't a secret, just tags
+requests as coming from this skill rather than a raw script.
 
 **Token handling rules — the PAT is a password.** It grants full write access to
 the user's publications (publish, edit, delete):
@@ -134,6 +139,7 @@ Example: post `id: 6a603fb103e2cb323e7851f6`, `slug: sealed-with-a-kyss-inside-a
    environment, never the literal token) for `me`, `draft`, `scheduledPost`, and
    any mutation. Without it you get `UNAUTHENTICATED`. Follow the token handling
    rules in the Authentication section: don't ask for, print, or persist the token.
+   Also send `x-hashnode-client: gql-skill` on every request (see Authentication).
 2. On `FORBIDDEN` + the Pro-plan message, stop and tell the user to upgrade the
    publication to Pro. Don't retry.
 3. Respect page-size caps: most connections cap `first` at **100**, drafts at

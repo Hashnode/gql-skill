@@ -1,9 +1,9 @@
 # Recipes
 
 End-to-end flows that combine multiple calls. All examples assume a Pro
-publication and an `Authorization: Bearer $HASHNODE_PAT` header, with the token
-supplied via the `HASHNODE_PAT` environment variable (never inlined literally —
-see [auth-and-roles.md](auth-and-roles.md)).
+publication and an `Authorization: Bearer $HASHNODE_PAT` header (token
+supplied via the `HASHNODE_PAT` environment variable, never inlined literally)
+plus `x-hashnode-client: gql-skill` — see [auth-and-roles.md](auth-and-roles.md).
 
 ## Publish a post
 
