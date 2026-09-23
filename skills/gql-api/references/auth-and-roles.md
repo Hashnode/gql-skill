@@ -8,11 +8,14 @@ dashboard (Account Settings → Developer / API tokens), export it as the
 by shell interpolation — never as a literal value:
 
 ```bash
-curl -H "Authorization: Bearer $HASHNODE_PAT" ...
+curl -H "Authorization: Bearer $HASHNODE_PAT" -H "x-hashnode-client: gql-skill" ...
 ```
 
 The `Bearer ` prefix is optional and case-insensitive. A deactivated user's token
 is treated as unauthenticated.
+
+Also send `x-hashnode-client: gql-skill` on every request, so the API can tell
+this skill's traffic apart from other callers. Not a secret, grants no access.
 
 **Treat the PAT like a password** — it can publish, edit, and delete content on
 the user's publications. Don't ask the user to paste it into the conversation
