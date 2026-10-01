@@ -9,10 +9,15 @@ type Query {
   """Returns the current authenticated user. Requires authentication."""
   me: MyUser
 
-  """Returns a post by ID"""
+  """
+  Returns a post by ID. Requires the post's publication to be on the Pro plan.
+  """
   post(id: ID!): Post
 
-  """Returns a publication by ID or host"""
+  """
+  Returns a publication by ID or host. Requires the publication to be on the
+  Pro plan.
+  """
   publication(id: ObjectId, host: String): Publication
 
   """Returns a user by username"""
@@ -24,10 +29,16 @@ type Query {
   """Returns a paginated feed of posts"""
   feed(first: Int!, after: String, filter: FeedFilter): FeedPostConnection!
 
-  """Returns a draft by ID (requires authentication)"""
+  """
+  Returns a draft by ID. Requires authentication and the draft's publication
+  to be on the Pro plan.
+  """
   draft(id: ObjectId!): Draft
 
-  """Returns a scheduled post (requires authentication)"""
+  """
+  Returns a scheduled post. Requires authentication and the publication to be
+  on the Pro plan.
+  """
   scheduledPost(id: ObjectId!): ScheduledPost
 
   """Check if a custom domain is available"""
@@ -36,10 +47,16 @@ type Query {
   """Check if a subdomain is available"""
   checkSubdomainAvailability(subdomain: String!): CheckSubdomainAvailabilityResult!
 
-  """Search posts within a publication"""
+  """
+  Search posts within a publication. Needs at least one filter, such as a
+  search query. Requires the publication to be on the Pro plan.
+  """
   searchPostsOfPublication(first: Int!, after: String, sortBy: PostSortBy, filter: SearchPostsOfPublicationFilter!): SearchPostConnection!
 
-  """Get top commenters"""
+  """
+  Returns the users who comment most on a publication's posts. Requires the
+  publication to be on the Pro plan.
+  """
   topCommenters(publicationId: ObjectId!, limit: Int): [User!]!
 
   """Get documentation project by ID or host"""
@@ -47,72 +64,232 @@ type Query {
 }
 
 type User {
+  """The ID of the user. It can be used to identify the user."""
   id: ID!
+
+  """
+  The username of the user. It is unique and tied with user's profile URL.
+  Example - https://hashnode.com/@username
+  """
   username: String!
+
+  """The name of the user."""
   name: String!
+
+  """
+  The bio of the user. Visible in about me section of the user's profile.
+  """
   bio: Content
+
+  """The URL to the profile picture of the user."""
   profilePicture: String
   coverImage: String
+
+  """The tagline of the user. Shown on the user's profile below the name."""
   tagline: String
+
+  """The location of the user."""
   location: String
+
+  """
+  The availability of the user based on tech stack and interests. Shown on the
+  "I am available for" section in user's profile.
+  """
   availableFor: String
+
+  """Whether or not the user is deactivated."""
   deactivated: Boolean
+
+  """The date the user joined Hashnode."""
   dateJoined: DateTime
+
+  """
+  The number of users that follow the requested user. Visible in the user's
+  profile.
+  """
   followersCount: Int!
+
+  """
+  The number of users that this user is following. Visible in the user's
+  profile.
+  """
   followingsCount: Int!
   posts(first: Int!, after: String): PostConnection!
+
+  """Publications owned by the user."""
   publications(first: Int!, after: String): PublicationConnection!
+
+  """The users who are following this user"""
   followers(first: Int!, after: String): UserConnection!
+
+  """The users which this user is following"""
   follows(first: Int!, after: String): UserConnection!
+
+  """The social media links of the user. Shown on the user's profile."""
   socialMediaLinks: SocialMediaLinks
+
+  """Returns a list of badges that the user has earned."""
   badges: [Badge!]!
 }
 
 type MyUser {
+  """The ID of the user. It can be used to identify the user."""
   id: ID!
+
+  """
+  The username of the user. It is unique and tied with user's profile URL.
+  Example - https://hashnode.com/@username
+  """
   username: String!
+
+  """The name of the user."""
   name: String!
+
+  """Email address of the user."""
   email: String!
+
+  """
+  The bio of the user. Visible in about me section of the user's profile.
+  """
   bio: Content
+
+  """The URL to the profile picture of the user."""
   profilePicture: String
   coverImage: String
+
+  """The tagline of the user. Shown on the user's profile below the name."""
   tagline: String
+
+  """The location of the user."""
   location: String
+
+  """
+  The availability of the user based on tech stack and interests. Shown on the
+  "I am available for" section in user's profile.
+  """
   availableFor: String
+
+  """The date the user joined Hashnode."""
   dateJoined: DateTime
+
+  """Publications owned by the user."""
   publications(first: Int!, after: String): PublicationConnection!
+
+  """The users who are following this user"""
   followers(first: Int!, after: String): UserConnection!
+
+  """The users which this user is following"""
   follows(first: Int!, after: String): UserConnection!
+
+  """The social media links of the user. Shown on the user's profile."""
   socialMediaLinks: SocialMediaLinks
+
+  """
+  Returns a list of badges that the user has earned. Shown on blogs /badges
+  page.
+  """
   badges: [Badge!]!
 }
 
 type SocialMediaLinks {
+  """The user's Twitter profile."""
   twitter: String
+
+  """The user's GitHub profile."""
   github: String
+
+  """The user's LinkedIn profile."""
   linkedin: String
+
+  """The user's website."""
   website: String
+
+  """The user's Facebook profile."""
   facebook: String
+
+  """The user's Instagram profile."""
   instagram: String
+
+  """The user's StackOverflow profile."""
   stackoverflow: String
+
+  """The user's YouTube profile."""
   youtube: String
 }
 
 type Badge {
+  """The ID of the badge."""
   id: ID!
+
+  """The name of the badge."""
   name: String!
+
+  """The description of the badge."""
   description: String
+
+  """The image of the badge."""
   image: String!
 }
 
 type PublicationFeatures {
+  """Flag to denote if publication is a pro team's publication."""
   proTeam: ProTeamFeature
+
+  """
+  Newsletter feature for the publication which adds a /newsletter route for
+  collecting subscribers and allows sending out newsletters.
+  """
   newsletter: NewsletterFeature
+
+  """Show the view count for blog posts."""
   viewCount: ViewCountFeature
+
+  """Show the read time for blog posts."""
   readTime: ReadTimeFeature
+
+  """
+  Widget that shows up if a text on a blog post is selected. Allows for easy
+  sharing or copying of the selected text.
+  """
   textSelectionSharer: TextSelectionSharerFeature
+
+  """GPT Bot crawler to index the publication."""
   gptBotCrawling: GPTBotCrawlingFeature
+
+  """Headless CMS for the publication."""
   headlessCMS: HeadlessCMSFeature
+}
+
+type ProTeamFeature {
+  """A flag indicating if the Pro team feature is enabled or not."""
+  isEnabled: Boolean!
+}
+
+type NewsletterFeature {
+  """A flag indicating if the newsletter feature is enabled or not."""
+  isEnabled: Boolean!
+}
+
+type ViewCountFeature {
+  """A flag indicating if the view count feature is enabled or not."""
+  isEnabled: Boolean!
+}
+
+type ReadTimeFeature {
+  """A flag indicating if the read time feature is enabled or not."""
+  isEnabled: Boolean!
+}
+
+type TextSelectionSharerFeature {
+  """
+  A flag indicating if the text selection sharer feature is enabled or not.
+  """
+  isEnabled: Boolean!
+}
+
+type GPTBotCrawlingFeature {
+  """A flag indicating if the GPT Bot Crawler feature is enabled or not."""
+  isEnabled: Boolean!
 }
 
 type PublicationAeoSettings {
@@ -129,35 +306,16 @@ type AeoCrawlerSettings {
   ccBot: Boolean!
 }
 
-type ProTeamFeature {
-  isEnabled: Boolean!
-}
-
-type NewsletterFeature {
-  isEnabled: Boolean!
-}
-
-type ViewCountFeature {
-  isEnabled: Boolean!
-}
-
-type ReadTimeFeature {
-  isEnabled: Boolean!
-}
-
-type TextSelectionSharerFeature {
-  isEnabled: Boolean!
-}
-
-type GPTBotCrawlingFeature {
-  isEnabled: Boolean!
-}
-
 type HeadlessCMSFeature {
+  """A flag indicating if the Headless CMS feature is enabled or not."""
   isEnabled: Boolean!
 }
 
 type DomainInfo {
+  """
+  The subdomain of the publication on hashnode.dev. It will redirect to you
+  custom domain if it is present and ready.
+  """
   hashnodeSubdomain: String
   domain: Domain
   wwwPrefixedDomain: Domain
@@ -169,6 +327,7 @@ type Domain {
 }
 
 type RedirectionRule {
+  """The source URL of the redirection rule."""
   source: String!
   destination: String!
   type: Int!
@@ -189,13 +348,33 @@ type PublicMembers {
 }
 
 type Publication {
+  """The ID of the publication."""
   id: ID!
+
+  """
+  The title of the publication. Title is used as logo if logo is not provided.
+  """
   title: String!
+
+  """The title of the publication. Shown in blog home page."""
   displayTitle: String
+
+  """
+  The domain of the publication. Used to access publication. Example
+  https://johndoe.com
+  """
   url: String
+
+  """The canonical URL of the publication."""
   canonicalURL: String
+
+  """The favicon of the publication. Used in browser tab."""
   favicon: String
+
+  """The about section of the publication."""
   about: Content
+
+  """The SEO description of the publication. Use seo.description instead."""
   descriptionSEO: String @deprecated(reason: "Use seo.description")
 
   """
@@ -203,14 +382,36 @@ type Publication {
   with no fallback to the publication name or about text.
   """
   seo: SEO
+
+  """The author who owns the publication."""
   author: User!
+
+  """Returns the post with the given slug."""
   post(slug: String!): Post
   redirectedPost(slug: String!): RedirectedPost
+
+  """
+  Returns the posts in the publication, newest first. Page size is capped at
+  100.
+  """
   posts(first: Int!, after: String, filter: PublicationPostConnectionFilter): PostConnection!
+
+  """
+  Total number of published posts in the publication. Select totalDocuments,
+  and use first: 1.
+  """
   postsCount(first: Int!): PostConnection!
+
+  """Returns series by slug in the publication."""
   series(slug: String!): Series
+
+  """Returns the list of series in the publication."""
   seriesList(first: Int!, after: String): SeriesConnection!
+
+  """Returns the static page with the given slug."""
   staticPage(slug: String!): StaticPage
+
+  """Returns a list of static pages in the publication."""
   staticPages(first: Int!, after: String): StaticPageConnection!
   """
   Members of the publication. Members who set their visibility to private are excluded.
@@ -220,38 +421,110 @@ type Publication {
   Count of publicly visible members. Members who set their visibility to private are excluded.
   """
   publicMembers(page: Int!, pageSize: Int!): PublicMembers!
+
+  """
+  Returns true if GitHub backup is configured and active and false otherwise.
+  """
   isGitHubBackupEnabled: Boolean!
+
+  """Returns whether the publication's GitHub source repo is connected."""
   isGithubAsSourceConnected: Boolean!
 
   """
   Details of publication invites. Returns null if publication is not a team publication.
   """
   invites: PublicationInvite
+
+  """
+  Returns the drafts of the authenticated user in the publication. Page size
+  is capped at 50.
+  """
   drafts(first: Int!, after: String): DraftConnection!
+
+  """
+  Returns the drafts of every author in the publication. Only the publication
+  owner and admins can read it. Page size is capped at 50.
+  """
   allDrafts(first: Int!, after: String): DraftConnection!
+
+  """
+  Returns the scheduled drafts of the authenticated user in the publication.
+  Page size is capped at 50.
+  """
   scheduledDrafts(first: Int!, after: String): DraftConnection!
+
+  """
+  Returns the drafts submitted for review in the publication. Only the
+  publication owner and admins can read it. Page size is capped at 50.
+  """
   submittedDrafts(first: Int!, after: String): DraftConnection!
+
+  """
+  Returns the scheduled drafts of every author in the publication. Only the
+  publication owner and admins can read it. Page size is capped at 50.
+  """
   allScheduledDrafts(first: Int!, after: String): DraftConnection!
   preferences: PublicationPreferences!
+
+  """The integrations connected to the publication."""
   integrations: PublicationIntegrations
+
+  """Links to the publication's social media profiles."""
   links: PublicationLinks
+
+  """True if the publication is a team publication and false otherwise."""
   isTeam: Boolean!
+
+  """Total number of followers of the publication."""
   followersCount: Int
+
+  """Returns the pinned post of the publication."""
   pinnedPost: Post
+
+  """Whether the publication has earned any badges or not."""
   hasBadges: Boolean
   urlPattern: String
+
+  """The meta tags associated with the publication."""
   metaTags: String
+
+  """Information about the publication's Open Graph metadata i.e. image."""
   ogMetaData: OpenGraphMetaData
+
+  """
+  Object containing information about beta features enabled for the
+  publication.
+  """
   features: PublicationFeatures!
   aeoSettings: PublicationAeoSettings!
+
+  """Domain information of the publication."""
   domainInfo: DomainInfo!
+
+  """
+  A flag to indicate if the publication is using Headless CMS. This can be
+  used to check if the post redirect needs authentication.
+  """
   isHeadless: Boolean!
+
+  """
+  Color code of the header color of the publication. Used to style header of
+  blog.
+  """
   headerColor: String
+
+  """Configured redirection rules for the publication."""
   redirectionRules: [RedirectionRule!]!
   customRules: [CustomRule!]!
   imprintV2: ImprintV2
+
+  """The total amount of recommended publications by this publication."""
   totalRecommendedPublications: Int!
   recommendedPublications: [RecommendedPublicationEdge!]!
+
+  """
+  Boolean flag indicating if the publication allows edits by contributors
+  """
   allowContributorEdits: Boolean!
 
   """
@@ -262,13 +535,16 @@ type Publication {
 }
 
 """
-A custom HTML widget an author can pin to all articles or embed inline.
+A custom HTML widget an author can pin to all articles or embed inline. For example, newsletter signup forms, or a "Buy me a coffee" button.
 """
 type Widget {
+  """The unique identifier of the widget"""
   id: ID!
 
   """The author-defined slug used in %%[widgetId] embed tokens."""
   widgetId: String!
+
+  """Content of the widget, can be a simple string or HTML"""
   content: String!
   isPinned: Boolean!
   pinLocation: WidgetPinLocation
@@ -280,6 +556,7 @@ enum WidgetPinLocation {
 }
 
 type RecommendedPublicationEdge {
+  """The node holding the Publication information"""
   node: Publication!
 }
 
@@ -299,16 +576,28 @@ type PublicationPreferences {
 }
 
 type DarkModePreferences {
+  """A flag indicating if the dark mode is enabled for the publication."""
   enabled: Boolean!
+
+  """The custom dark mode logo of the publication."""
   logo: String
 }
 
 type PublicationNavbarItem {
+  """The unique identifier of the navbar item."""
   id: ID!
   type: String!
+
+  """The label of the navbar item."""
   label: String!
+
+  """The URL of the navbar item."""
   url: String
+
+  """The series added to the navbar item."""
   series: Series
+
+  """The static page added to the navbar item."""
   page: StaticPage
 }
 
@@ -319,38 +608,94 @@ type EnabledPages {
 }
 
 type PublicationIntegrations {
+  """Google Analytics Tracking ID for integration with Google Analytics."""
   gaTrackingID: String
+
+  """FB Pixel ID for integration with Facebook Pixel."""
   fbPixelID: String
+
+  """Hotjar Site ID for integration with Hotjar."""
   hotjarSiteID: String
+
+  """Matomo URL for integration with Matomo Analytics."""
   matomoURL: String
+
+  """Matomo Site ID for integration with Matomo Analytics."""
   matomoSiteID: String
+
+  """Fathom Analytics Site ID for integration with Fathom Analytics."""
   fathomSiteID: String
+
+  """
+  A flag indicating if the custom domain is enabled for integration with
+  Fathom Analytics.
+  """
   fathomCustomDomainEnabled: Boolean
+
+  """Custom domain for integration with Fathom Analytics."""
   fathomCustomDomain: String
+
+  """
+  A flag indicating if Plausible Analytics is enabled for the publication.
+  """
   plausibleAnalyticsEnabled: Boolean
+
+  """Google Tag Manager ID for integration with Google Tag Manager."""
   gTagManagerID: String
+
+  """
+  Web Monetization Payment Pointer for integration with Web Monetization.
+  """
   wmPaymentPointer: String
+
+  """Koala Public Key for integration with Koala."""
   koalaPublicKey: String
+
+  """MS Clarity ID for integration with Microsoft Clarity."""
   msClarityID: String
   openPanelClientId: String
 }
 
 type PublicationLinks {
+  """Twitter URL of the publication."""
   twitter: String
+
+  """GitHub URL of the publication."""
   github: String
+
+  """LinkedIn URL of the publication."""
   linkedin: String
+
+  """Hashnode profile of author of the publication."""
   hashnode: String
+
+  """Website URL of the publication."""
   website: String
+
+  """Instagram URL of the publication."""
   instagram: String
+
+  """YouTube URL of the publication."""
   youtube: String
+
+  """Daily.dev URL of the publication."""
   dailydev: String
+
+  """Mastodon URL of the publication."""
   mastodon: String
+
+  """Facebook URL of the publication."""
   facebook: String
+
+  """Bluesky URL of the publication."""
   bluesky: String
 }
 
 type PublicationMember {
+  """The ID of the publication member."""
   id: ID!
+
+  """The user who is a member of the publication."""
   user: User!
   role: String!
 }
@@ -385,6 +730,8 @@ type OffsetPageInfo {
 """Contains the publication invite information."""
 type PublicationInvite {
   pendingInvites(pageSize: Int!, page: Int!): PendingInviteConnection!
+
+  """The paginated list of role based invites."""
   roleBasedInvites(pageSize: Int!, page: Int!): RoleBasedInviteConnection!
 
   """Signifies if invite links in role-based invites are active."""
@@ -392,19 +739,30 @@ type PublicationInvite {
 }
 
 type PendingInviteConnection {
+  """A list of invites"""
   nodes: [PendingInvite!]!
+
+  """Information to aid in pagination."""
   pageInfo: OffsetPageInfo!
+
+  """The total number of invites."""
   totalDocuments: Int!
 }
 
 type RoleBasedInviteConnection {
+  """A list of invites"""
   nodes: [RoleBasedInvite!]!
+
+  """Information to aid in pagination."""
   pageInfo: OffsetPageInfo!
+
+  """The total number of invites."""
   totalDocuments: Int!
 }
 
 """Contains the pending invite information."""
 type PendingInvite {
+  """The ID of the pending invite."""
   id: ID!
 
   """The email of the user that was invited."""
@@ -420,46 +778,159 @@ type PendingInvite {
 }
 
 type RoleBasedInvite {
+  """The ID of the role based invite."""
   id: ID!
+
+  """The role assigned to the user in the publication."""
   role: UserPublicationRole!
+
+  """Boolean that signifies if the invite has unlimited capacity."""
   isUnlimitedCapacity: Boolean
+
+  """
+  The number of members that have already used the link to join the team.
+  """
   usedCapacity: Int
+
+  """The capacity of how many members to be invited by the link."""
   capacity: Int
+
+  """Invite link of the role based invite."""
   inviteLink: String
+
+  """The date the invite was created."""
   createdAt: DateTime
+
+  """The expiry date of the invite."""
   expiryDate: DateTime
 }
 
 type Post {
+  """The ID of the post. Used to uniquely identify the post."""
   id: ID!
+
+  """A unique ID of the post."""
   cuid: String
+
+  """The title of the post."""
   title: String!
+
+  """
+  The subtitle of the post. Subtitle is a short description of the post which
+  is also used in SEO if meta tags are not provided.
+  """
   subtitle: String
+
+  """
+  The slug of the post. Used as address of the post on blog. Example -
+  https://johndoe.com/my-post-slug
+  """
   slug: String!
+
+  """
+  Complete URL of the post including the domain name. Example -
+  https://johndoe.com/my-post-slug
+  """
   url: String!
+
+  """
+  Content of the post. Contains HTML and Markdown version of the post content.
+  """
   content: Content!
+
+  """
+  Brief is a short plain-text description of the post, extracted from the
+  start of its content.
+  """
   brief: String!
+
+  """
+  The cover image preference of the post. Contains cover image URL and other
+  details.
+  """
   coverImage: CoverImage
+
+  """Returns the user details of the author of the post."""
   author: User!
+
+  """
+  Returns the user details of the co-authors of the post. Hashnode users can
+  add up to 4 co-authors as collaborators to their posts. This functionality
+  is limited to teams publication.
+  """
   coAuthors: [User!]
+
+  """The publication the post belongs to."""
   publication: Publication
+
+  """
+  Returns list of tags added to the post. Contains tag id, name, slug, etc.
+  """
   tags: [Tag!]
+
+  """The number of hearts on the post. Shows how many users liked the post."""
   reactionCount: Int!
+
+  """The number of comments on the post."""
   responseCount: Int!
+
+  """The number of replies on the post."""
   replyCount: Int!
+
+  """The estimated time to read the post in minutes."""
   readTimeInMinutes: Int!
+
+  """
+  The number of views on the post. Can be used to show the popularity of the
+  post.
+  """
   views: Int
+
+  """Flag to indicate if the post is featured on Hashnode feed."""
   featured: Boolean
+
+  """The date and time the post was published."""
   publishedAt: DateTime!
+
+  """The date and time the post was last updated."""
   updatedAt: DateTime
+
+  """Canonical URL set by author in case of republished posts."""
   canonicalUrl: String
+
+  """
+  A flag to indicate if the post contains LaTeX. Latex is used to write
+  mathematical equations.
+  """
   hasLatexInPost: Boolean
+
+  """A list of comments on the post."""
   comments(first: Int!, after: String): CommentConnection!
+
+  """A list of users who liked the post."""
   likedBy(first: Int!, after: String): UserConnection!
+
+  """Information of the series the post belongs to."""
   series: Series
+
+  """
+  SEO information of the post. Contains title and description used in meta
+  tags.
+  """
   seo: SEO
+
+  """
+  OG meta-data of the post. Contains image url used in open graph meta tags.
+  """
   ogMetaData: OpenGraphMetaData
+
+  """Post feature-related fields."""
   features: PostFeatures!
+
+  """
+  Preference settings for the post. Contains information about if the post is
+  pinned to blog, comments are disabled, etc.
+  """
   preferences: PostPreferences!
   faq: [PostFaqItem!]!
 }
@@ -470,8 +941,16 @@ type PostFaqItem {
 }
 
 type Content {
+  """The Markdown version of the content."""
   markdown: String!
+
+  """The HTML version of the content."""
   html: String!
+
+  """
+  The text version from sanitized html content. HTML tags are stripped and
+  only text is returned.
+  """
   text: String!
 }
 
@@ -484,11 +963,15 @@ type CoverImage {
 }
 
 type SEO {
+  """The title used in og:title tag for SEO purposes."""
   title: String
+
+  """The description used in og:description tag for SEO purposes."""
   description: String
 }
 
 type OpenGraphMetaData {
+  """The image used in og:image tag for SEO purposes."""
   image: String
 }
 
@@ -502,32 +985,95 @@ type TableOfContents {
 }
 
 type TableOfContentsItem {
+  """Unique identifier."""
   id: ID!
+
+  """The level of nesting. Refers to the heading level in the post."""
   level: Int!
+
+  """The slug of the referenced headline."""
   slug: String!
+
+  """The title of the referenced headline."""
   title: String!
+
+  """
+  ID of the TableOfContentsItem that is one level higher in the hierarchy.
+  null if this is a top level item.
+  """
   parentId: ID
 }
 
 type PostPreferences {
+  """
+  A flag to indicate if the post is pinned to blog. Pinned post is shown on
+  top of the blog.
+  """
   pinnedToBlog: Boolean!
+
+  """A flag to indicate if the comments are disabled for the post."""
   disableComments: Boolean!
+
+  """
+  A flag to indicate if the cover image is shown below title of the post.
+  Default position of cover is top of title.
+  """
   stickCoverToBottom: Boolean!
+
+  """Whether or not the post is hidden from the Hashnode community."""
   isDelisted: Boolean!
 }
 
 type Draft {
+  """The ID of the draft."""
   id: ID!
+
+  """
+  The title of the draft. It would become the title of the post when
+  published.
+  """
   title: String
+
+  """
+  The subtitle of the draft. It would become the subtitle of the post when
+  published.
+  """
   subtitle: String
+
+  """
+  The slug of the draft. If it is empty, the slug is generated from the title
+  when the draft is published.
+  """
   slug: String
+
+  """Content of the draft in HTML and markdown"""
   content: Content
+
+  """The author of the draft."""
   author: User!
+
+  """
+  The cover image preference of the draft. Contains cover image URL and other
+  details.
+  """
   coverImage: CoverImage
+
+  """
+  Returns list of tags added to the draft. Contains tag id, name, slug, etc.
+  """
   tags: [Tag!]
+
+  """
+  The user credited as the author of the post when the draft is published,
+  instead of the draft's author.
+  """
   publishAs: User
   settings: DraftSettings
+
+  """The date and time the draft was last updated."""
   updatedAt: DateTime!
+
+  """The date the draft is scheduled to be published."""
   scheduledDate: DateTime
 
   """The publication the draft belongs to."""
@@ -567,60 +1113,160 @@ type DraftSettings {
   Kept for backward compatibility with existing API consumers.
   """
   enableTableOfContents: Boolean! @deprecated(reason: "Use Draft.features.tableOfContents.isEnabled instead")
+
+  """A flag to indicate if the comments are disabled for the post."""
   disableComments: Boolean!
+
+  """
+  A flag to indicate if the cover image is shown below title of the post.
+  Default position of cover is top of title.
+  """
   stickCoverToBottom: Boolean!
+
+  """Whether or not the post is hidden from the Hashnode community."""
   isDelisted: Boolean!
 }
 
 type ScheduledPost {
+  """The ID of the scheduled post."""
   id: ID!
   title: String!
   slug: String!
+
+  """
+  The scheduled date for the post to be published. This is the date the post
+  will be published.
+  """
   scheduledDate: DateTime!
+
+  """The user who authored the scheduled post."""
   author: User!
+
+  """Returns the publication the post is scheduled for."""
   publication: Publication
+
+  """Returns the draft associated with the scheduled post."""
   draft: Draft!
 }
 
 type Series {
+  """The ID of the series."""
   id: ID!
+
+  """The name of the series. Shown in series page."""
   name: String!
+
+  """
+  The slug of the series. Used to access series page. Example
+  https://johndoe.com/series/series-slug
+  """
   slug: String!
+
+  """Unique identifier for the series."""
   cuid: String
+
+  """
+  The description of the series. Contains markdown and html version of the
+  series's description.
+  """
   description: Content
+
+  """The cover image of the series."""
   coverImage: String
+
+  """Returns the user who is author of the series."""
   author: User!
+
+  """Returns a list of posts in the series."""
   posts(first: Int!, after: String): PostConnection!
 }
 
 type Tag {
+  """The ID of the tag."""
   id: ID!
+
+  """The name of the tag. Shown in tag page."""
   name: String!
+
+  """
+  The slug of the tag. Used to access tags feed. Example
+  https://hashnode.com/tag/graphql
+  """
   slug: String!
+
+  """The logo of the tag. Shown in tag page."""
   logo: String
+
+  """The tagline of the tag."""
   tagline: String
+
+  """Information about the tag."""
   info: String
+
+  """Total number of users following this tag."""
   followersCount: Int!
+
+  """Alltime usage count of this tag in posts."""
   postsCount: Int!
+
+  """Paginated list of posts published under this tag"""
   posts(first: Int!, after: String): PostConnection!
 }
 
 type Comment {
+  """The ID of the comment."""
   id: ID!
+
+  """The content of the comment in markdown and html format."""
   content: Content!
+
+  """The author of the comment."""
   author: User!
+
+  """The date the comment was created."""
   dateAdded: DateTime!
+
+  """Returns a list of replies to the comment."""
   replies(first: Int!, after: String): CommentConnection!
+
+  """
+  Total number of reactions on the comment. Reactions are hearts added to any
+  comment.
+  """
   totalReactions: Int!
 }
 
 type StaticPage {
+  """The ID of the static page."""
   id: ID!
+
+  """The title of the static page. Shown in nav bar."""
   title: String!
+
+  """
+  The slug of the static page. Used to access static page. Example
+  https://johndoe.com/my-page.
+  """
   slug: String!
+
+  """
+  Content of the static page. Contains markdown and html version of the static
+  page's content.
+  """
   content: Content!
+
+  """
+  A flag to determine if the static page is hidden from public or not, this is
+  used to hide the page instead of deleting it.
+  """
   hidden: Boolean!
+
+  """Information about the static page's Open Graph metadata i.e. image."""
   ogMetaData: OpenGraphMetaData
+
+  """
+  Information about the static page's SEO metadata i.e. title and description.
+  """
   seo: SEO
 }
 
@@ -644,12 +1290,18 @@ type PostConnection {
 }
 
 type PostEdge {
+  """The node holding the Post information"""
   node: Post!
+
+  """A cursor for use in pagination."""
   cursor: String!
 }
 
 type FeedPostConnection {
+  """A list of edges containing Post information"""
   edges: [PostEdge!]!
+
+  """Information for pagination in Post connection."""
   pageInfo: PageInfo!
 }
 
@@ -669,27 +1321,42 @@ type UserConnection {
 }
 
 type UserEdge {
+  """The node containing User information"""
   node: User!
+
+  """The cursor for use in pagination."""
   cursor: String!
 }
 
 type SeriesConnection {
+  """A list of edges containing Series information"""
   edges: [SeriesEdge!]!
+
+  """Information for pagination in SeriesList connection."""
   pageInfo: PageInfo!
 }
 
 type SeriesEdge {
+  """The node holding the Series information"""
   node: Series!
+
+  """A cursor for use in pagination."""
   cursor: String!
 }
 
 type StaticPageConnection {
+  """A list of edges containing nodes in the connection."""
   edges: [StaticPageEdge!]!
+
+  """Information to aid in pagination."""
   pageInfo: PageInfo!
 }
 
 type StaticPageEdge {
+  """The node containing a static page."""
   node: StaticPage!
+
+  """A cursor for use in pagination."""
   cursor: String!
 }
 
@@ -704,13 +1371,21 @@ type PublicationMemberEdge {
 }
 
 type DraftConnection {
+  """A list of edges of drafts connection."""
   edges: [DraftEdge!]!
+
+  """Information to aid in pagination."""
   pageInfo: PageInfo!
+
+  """The total number of documents in the connection."""
   totalDocuments: Int!
 }
 
 type DraftEdge {
+  """A node in the connection containing a draft."""
   node: Draft!
+
+  """A cursor for use in pagination."""
   cursor: String!
 }
 
@@ -725,7 +1400,10 @@ type CommentEdge {
 }
 
 type SearchPostConnection {
+  """A list of edges containing Post information"""
   edges: [PostEdge!]!
+
+  """Information for pagination in Post connection."""
   pageInfo: PageInfo!
 }
 
@@ -740,7 +1418,13 @@ type GuideEdge {
 }
 
 type PageInfo {
+  """
+  The cursor of the last item in the current page. Use it as the after input
+  to query the next page.
+  """
   endCursor: String
+
+  """Indicates if there are more pages."""
   hasNextPage: Boolean!
   totalDocuments: Int
 }
@@ -753,6 +1437,10 @@ input FeedFilter {
 }
 
 input PublicationPostConnectionFilter {
+  """
+  Filtering by tag slugs and tag IDs will return posts that match either of
+  the filters. It is an "OR" filter and not an "AND" filter.
+  """
   tagSlugs: [String!]
 }
 
@@ -785,17 +1473,33 @@ enum PostSortBy {
 }
 
 input TimeFilter {
+  """
+  Narrow the time range to a specific period. Can't be used with relative.
+  """
   absolute: AbsoluteTimeRange
+
+  """
+  Narrow the time range to a specific period. Can't be used with absolute.
+  """
   relative: RelativeTimeRange
 }
 
 input AbsoluteTimeRange {
+  """
+  The start of the time range, inclusive. Defaults to the unix epoch start
+  (1970-01-01).
+  """
   from: DateTime
+
+  """The end of the time range, inclusive. Defaults to the current date."""
   to: DateTime
 }
 
 input RelativeTimeRange {
+  """The type of time range to be used."""
   relative: TimePeriod!
+
+  """The number of time periods to go back in time."""
   n: Int!
 }
 
@@ -812,10 +1516,16 @@ input CheckCustomDomainAvailabilityInput {
 }
 
 type Mutation {
-  """Publish a new post to a publication. Requires authentication."""
+  """
+  Publish a new post to a publication. Requires authentication. Requires the
+  publication to be on the Pro plan.
+  """
   publishPost(input: PublishPostInput!): PublishPostPayload!
 
-  """Update an existing post. Requires authentication."""
+  """
+  Update an existing post. Requires authentication. Requires the publication
+  to be on the Pro plan.
+  """
   updatePost(input: UpdatePostInput!): UpdatePostPayload!
 
   """
@@ -827,41 +1537,47 @@ type Mutation {
   removePost(input: RemovePostInput!): RemovePostPayload!
 
   """
-  Create a new draft on a publication without publishing it. Requires authentication.
+  Create a new draft on a publication without publishing it. Requires
+  authentication. Requires the publication to be on the Pro plan.
   """
   createDraft(input: CreateDraftInput!): CreateDraftPayload!
 
-  """Update an existing draft. Requires authentication."""
+  """
+  Update an existing draft. Requires authentication. Requires the publication
+  to be on the Pro plan.
+  """
   updateDraft(input: UpdateDraftInput!): UpdateDraftPayload!
 
   """
-  Publish an existing draft as a post. The draft is soft-deleted once the
-  post is created. Requires authentication.
+  Publish an existing draft as a post. The draft is soft-deleted once the post
+  is created. Requires authentication. Requires the publication to be on the
+  Pro plan.
   """
   publishDraft(input: PublishDraftInput!): PublishDraftPayload!
 
   """
-  Submit a draft on a team publication for editor review. Sets the
-  pendingPublicationApproval flag so editors see the draft in their queue.
-  Requires authentication.
+  Submit a draft on a team publication for editor review. Requires
+  authentication. Requires the publication to be on the Pro plan.
   """
   submitDraftForReview(input: SubmitDraftForReviewInput!): SubmitDraftForReviewPayload!
 
   """
   Reject a draft that was previously submitted for review. Only publication
-  owners, admins, and authors can reject. Requires authentication.
+  owners and admins can reject. Requires authentication. Requires the
+  publication to be on the Pro plan.
   """
   rejectDraftSubmission(input: RejectDraftSubmissionInput!): RejectDraftSubmissionPayload!
 
   """
-  Soft-delete a draft (sets it inactive). The draft's author can delete their
-  own draft; publication owners, admins, and authors can delete any draft in
-  the publication. Requires authentication.
+  Delete a draft. The draft's author can delete their own draft; publication
+  owners and admins can delete any draft in the publication. Requires
+  authentication. Requires the publication to be on the Pro plan.
   """
   deleteDraft(input: DeleteDraftInput!): DeleteDraftPayload!
 
   """
-  Returns a presigned URL for uploading an image to Hashnode's CDN. Requires authentication.
+  Returns a presigned URL for uploading an image to Hashnode's CDN. Requires
+  authentication and a Pro plan.
   """
   createImageUploadURL(input: CreateImageUploadInput!): CreateImageUploadPayload!
 
@@ -1191,11 +1907,12 @@ type UpdatePostPayload {
 }
 
 type RemovePostPayload {
-  """The removed (soft-deleted, isActive=false) post."""
+  """The removed post."""
   post: Post
 }
 
 type CreateDraftPayload {
+  """The newly created draft"""
   draft: Draft!
 }
 
@@ -1209,6 +1926,7 @@ input PublishDraftInput {
 }
 
 type PublishDraftPayload {
+  """The newly created post based on the draft"""
   post: Post!
 }
 
@@ -1236,7 +1954,7 @@ input DeleteDraftInput {
 }
 
 type DeleteDraftPayload {
-  """The deleted (soft-deleted, isActive=false) draft."""
+  """The deleted draft."""
   draft: Draft
 }
 
